@@ -32,9 +32,12 @@ SDK 10 использует Microsoft.Testing.Platform, поэтому нуже�
 формат ошибок, Swagger, явное подключение routes, конфликты, модули, JWT issuer/audience/
 expiry/signature, roles/policies, API keys, пароли, refresh reuse/logout, cookie CSRF,
 rate limit, caching, CORS, health, request logging, async startup/cancellation/disposal,
-сохранность SQLite и конкурентную ротацию.
+сохранность SQLite и конкурентную ротацию. WebSocket-тесты покрывают текст/JSON,
+фрагменты, UTF-8, nested/custom validation, комнаты, параллельные рассылки, lifecycle/disposal,
+JWT/roles/cookies, Origin, лимиты и shutdown. Есть проверка native ClientWebSocket через реальный Kestrel.
 
-Тесты запускают TestServer без внешнего порта. Для cookie-тестов используется HTTPS
+Большинство HTTP-тестов запускают TestServer без внешнего порта; отдельная WebSocket-проверка
+поднимает Kestrel на временном loopback-порту. Для cookie-тестов используется HTTPS
 scheme в TestServer; они не устанавливают доверенные сертификаты в ОС. Smoke-тест
 использует реальный HTTP listener, временную БД и случайные секреты, затем останавливает
 процесс и удаляет данные. Cookie-поток покрывается TestServer.

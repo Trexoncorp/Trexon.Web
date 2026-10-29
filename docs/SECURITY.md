@@ -125,3 +125,10 @@ Swagger request interceptor; автоматическая подстановка
 
 Источники контрактов: [ASP.NET Core JWT](https://learn.microsoft.com/en-us/aspnet/core/security/authentication/configure-jwt-bearer-authentication?view=aspnetcore-8.0),
 [ASP.NET Core antiforgery](https://learn.microsoft.com/en-us/aspnet/core/security/anti-request-forgery?view=aspnetcore-8.0).
+
+## WebSocket endpoints
+
+На классах `[Socket]` работают те же `[Authorize]`, роли и policies. Для браузерных
+cookies транспорт отдельно проверяет Origin; CORS не является защитой WebSocket.
+Рекомендованный браузерный поток — cookie login по HTTPS, затем WSS того же origin.
+[Полный контракт и ограничения](WEBSOCKETS.md).

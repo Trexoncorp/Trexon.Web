@@ -61,6 +61,12 @@ def main():
                 assert {'Bearer', 'ApiKey', 'Cookies'} <= document['components']['securitySchemes'].keys()
                 ui, _ = call('GET', '/docs/index.html')
                 assert 'swagger-ui' in ui
+                assert any(item['path'] == '/ws/chat/{room}' for item in document['x-trexon-websockets'])
+                assert any(item['path'] == '/ws/private/{room}' for item in document['x-trexon-websockets'])
+                chat, _ = call('GET', '/chat')
+                assert 'new WebSocket' in chat and 'X-CSRF-Token' in chat
+                call('GET', '/ws/chat/general', expected=400)
+                call('GET', '/ws/private/general', expected=401)
                 call('GET', '/tasks', expected=401)
                 password = secrets.token_urlsafe(20)
                 for name in ['alice', 'bob']:

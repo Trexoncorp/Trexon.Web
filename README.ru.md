@@ -69,10 +69,35 @@ dotnet run --project examples/Trexon.Web.Sample
 | Кеш публичных ответов | `UseOutputCache()` и `[OutputCache]` |
 | Проверка зависимостей | `UseHealthChecks()` |
 | Логи HTTP-запросов | `UseRequestLogging()` |
+| Типизированные WebSocket, комнаты и lifecycle | `AddSocket<THandler>()` |
 | Свои модули | `AddModule<T>()` |
 
 JWT на сервере и Swagger настраиваются одним вызовом. Сам ключ, issuer и audience
 передаются настройками. Поддерживаются `[AllowAnonymous]`, роли и собственные политики.
+
+## WebSocket одним обработчиком
+
+<!-- verify: socket-echo -->
+```csharp
+using Trexon.Web;
+using Trexon.Web.Sockets;
+
+var app = TrexonApp.Create(args);
+app.AddSocket<EchoSocket>();
+await app.RunAsync();
+
+[Socket("/ws/echo")]
+public sealed class EchoSocket : SocketHandler<string>
+{
+    public override ValueTask OnMessageAsync(string message, SocketConnection<string> connection, CancellationToken token) =>
+        connection.SendAsync(message, token);
+}
+```
+
+Без ручного receive loop и работы с фрагментами. Другие типы сообщений автоматически
+используют JSON; `SocketHandler<TIn,TOut>` разделяет вход и выход. Авторизация и свои
+валидаторы работают тем же способом, что HTTP. В примере откройте `/chat` для рассылки
+между вкладками. [Руководство: WebSocket](docs/WEBSOCKETS.md).
 
 ## Подключить библиотеку
 

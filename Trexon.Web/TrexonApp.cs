@@ -29,6 +29,7 @@ public sealed class TrexonApp
     private bool _built;
     internal bool HasCors, HasRateLimiter, HasOutputCache;
     internal bool HasLocalJwt;
+    internal Trexon.Web.Sockets.WebSocketModule? Sockets;
     internal string ApiKeyHeader = "X-API-Key";
     internal Func<Trexon.Web.Modules.RequestLog, CancellationToken, ValueTask>? RequestLogWriter;
     internal ILogger? RequestLogger;
@@ -206,6 +207,7 @@ public sealed class TrexonApp
             app.UseStatusCodePages(context => Problems.WriteAsync(context.HttpContext, context.HttpContext.Response.StatusCode,
                 Microsoft.AspNetCore.WebUtilities.ReasonPhrases.GetReasonPhrase(context.HttpContext.Response.StatusCode)));
             app.UseRouting();
+            Sockets?.UseTransport(app);
             if (HasCors) app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();

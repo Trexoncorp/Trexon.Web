@@ -15,7 +15,7 @@ internal sealed class OperationDocumentation(List<SecurityDescription> schemes) 
     {
         var method = context.MethodInfo;
         var group = method.DeclaringType!;
-        var summary = method.GetCustomAttribute<SummaryAttribute>();
+        var summary = method.GetCustomAttribute<SummaryAttribute>() ?? group.GetCustomAttribute<SummaryAttribute>();
         if (summary != null) { operation.Summary = summary.Text; operation.Description = summary.Description; }
         var tags = method.GetCustomAttributes<TagAttribute>().Select(t => t.Name).ToArray();
         if (tags.Length == 0) tags = group.GetCustomAttributes<TagAttribute>().Select(t => t.Name).ToArray();

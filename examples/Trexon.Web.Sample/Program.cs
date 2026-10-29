@@ -7,6 +7,7 @@ using Trexon.Web.Modules;
 using Trexon.Web.Sample;
 using Trexon.Web.Security;
 using Trexon.Web.Users;
+using Trexon.Web.Sockets;
 
 var settings = Settings.Load<SampleSettings>();
 Directory.CreateDirectory(settings.DataDirectory);
@@ -36,9 +37,17 @@ app.UseJwt(new JwtSettings("trexon-sample", "trexon-sample", signingKey))
         request.Method, request.Path, request.StatusCode, request.ElapsedMilliseconds, request.TraceId))
     .AddModule<TaskModule>()
     .AddRoutes<DiagnosticsRoutes>()
+    .AddSocket<ChatSocket>()
+    .AddSocket<PrivateChatSocket>()
+    .UseWebSockets(options => options.AllowedOrigins = [settings.FrontendOrigin])
     .Errors(errors => errors.Map<TaskNotFoundException>(404, "Task not found"));
 
-app.Map(web => web.MapGet("/", () => Results.Redirect("/docs")).ExcludeFromDescription());
+app.Map(web =>
+{
+    web.MapGet("/", () => Results.Redirect("/docs")).ExcludeFromDescription();
+    web.MapGet("/chat", () => Results.Stream(typeof(ChatSocket).Assembly.GetManifestResourceStream("Trexon.Web.Sample.Chat.html")!, "text/html; charset=utf-8"))
+        .ExcludeFromDescription();
+});
 await using var web = await app.BuildAsync();
 // Explicit startup work, completed before accepting requests. No background jobs.
 await AdminSeed.InitializeAsync(web.Services);

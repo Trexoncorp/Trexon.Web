@@ -181,3 +181,30 @@ gelten für Routenklassen, nicht automatisch für beliebige Minimal API Handler.
 TLS/Proxy-Vertrauen, gemeinsame Data-Protection-Schlüssel, stabile Secrets und SQLite-Backups
 müssen zur konkreten Bereitstellung passen. CI baut, testet .NET 8/10, prüft Dokumentation
 und Beispiel und erstellt Pakete; Veröffentlichung ist ein separater Schritt.
+
+## WebSockets mit hoher Abstraktion
+
+AddSocket<ChatSocket>() verbindet den [Socket("/ws/chat/{room}")]-Handler und aktiviert
+den Transport automatisch. SocketHandler<T> oder SocketHandler<TIn,TOut> benötigt nur
+OnMessageAsync; OnConnectedAsync/OnDisconnectedAsync sind optional. Strings sind Text,
+andere Typen JSON. Die Bibliothek übernimmt Fragmente, Validierung, Cancellation,
+serialisierte Send-Vorgänge, Limits und den Closing Handshake.
+
+SendAsync antwortet, Join/Leave verwaltet Gruppen, BroadcastAsync sendet an alle oder
+an eine Gruppe einschließlich Absender. Endpoints haben getrennte Verzeichnisse.
+Handler und scoped Services leben für die Verbindung. DataAnnotations und bestehende
+AddValidator-Registrierungen prüfen jede Nachricht; Fehler werden als reservierter JSON-
+Umschlag gesendet. Unerwartete Fehler schließen mit 1011 ohne interne Details.
+
+Authorize, Rollen und Policies werden vor dem Upgrade geprüft. Native Clients können
+Header senden, Browser verwenden HTTPS-Cookies vom selben Origin. Origin wird unabhängig
+von CORS geprüft: gleicher Origin ist erlaubt, weitere werden explizit konfiguriert.
+Fehlender Origin ist für native Clients standardmäßig erlaubt. JWT aus Query-Parametern
+wird nicht automatisch übernommen. Berechtigungen werden nicht nach jeder Nachricht neu geprüft.
+
+UseWebSockets ändert Defaults: 64 KiB je Nachricht, 120 Nachrichten pro Minute/Verbindung,
+zwei Minuten Keep-Alive, zehn Sekunden Send-Timeout, fünf Sekunden Close-Timeout.
+Kein verteilter Backplane, dauerhafter Nachrichtenspeicher oder automatischer Reconnect.
+Swagger zeigt Verträge im Abschnitt WebSockets und in x-trexon-websockets; HTTP Try it out
+ist kein Socket-Client. `/chat` demonstriert öffentliche/private Räume und Cookie-Login.
+[Ausführliche Beispiele und Vertrag](../WEBSOCKETS.md).

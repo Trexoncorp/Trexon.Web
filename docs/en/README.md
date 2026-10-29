@@ -201,3 +201,34 @@ sample, and packs NuGet artifacts. Publishing is separate. Use the [operations g
 for TLS/proxy trust, stable secrets, SQLite backups, persistent Data Protection keys,
 and process-local limits/cache. The [API reference](../API.md), [architecture](../ARCHITECTURE.md),
 [comparison](../MINIMAL_APIS.md), and [boundaries](../ROADMAP.md) provide detailed contracts.
+
+## High-level WebSockets
+
+`app.AddSocket<ChatSocket>()` enables its `[Socket("/ws/chat/{room}")]` endpoint and
+transport automatically. Derive from `SocketHandler<T>` or `SocketHandler<TIn,TOut>`
+and implement `ValueTask OnMessageAsync(TIn, SocketConnection<TOut>, CancellationToken)`.
+String messages are plain text; other contracts use JSON. The library owns framing,
+fragment assembly, validation, cancellation, bounded sends and the closing handshake.
+
+Use connection.SendAsync for a reply, Join/Leave for group membership, and BroadcastAsync
+for endpoint-local or group delivery, including the sender. Different endpoints have
+isolated registries. Connect/disconnect callbacks are optional. Handlers and their scoped
+services live for the connection. Existing DataAnnotations and AddValidator registrations
+run before each message; invalid JSON/models receive a reserved JSON error envelope.
+Unexpected failures close with 1011 without internal details.
+
+Authorize/roles/policies are checked before upgrade. Native clients can send credential
+headers; browsers use an HTTPS same-origin cookie session. Origin is checked independently
+of CORS: same-origin is allowed by default, additional trusted origins are explicit.
+Missing Origin is allowed for native clients unless disabled. Query-string JWT extraction
+is not enabled. Authorization is a handshake snapshot, not a per-message revalidation.
+
+Optional UseWebSockets configures defaults: 64 KiB per complete message, 120 messages per
+minute per connection, two-minute transport keep-alive, ten-second send timeout, five-second
+close timeout. Limits/cache remain process-local. There is no distributed backplane,
+durable message store, binary streaming or implicit reconnection.
+
+Swagger's WebSockets section lists contracts; x-trexon-websockets in OpenAPI contains paths,
+formats, auth metadata and input/output schema references. HTTP Try it out does not exchange
+socket messages. `/chat` in the complete sample demonstrates public/private rooms and a
+browser cookie login. [Detailed contract and complete examples](../WEBSOCKETS.md).

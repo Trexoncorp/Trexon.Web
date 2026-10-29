@@ -31,8 +31,8 @@ public sealed class TagAttribute(string name) : Attribute
     public string Name { get; } = name;
 }
 
-/// <summary>Describes an operation in OpenAPI.</summary>
-[AttributeUsage(AttributeTargets.Method, Inherited = true)]
+/// <summary>Describes a route group, WebSocket endpoint, or operation in OpenAPI.</summary>
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = true)]
 public sealed class SummaryAttribute(string text) : Attribute
 {
     /// <summary>The short operation summary.</summary>

@@ -8,7 +8,8 @@
 initialization, Swagger UI и OpenAPI, MVC binding/DataAnnotations, свои async-валидаторы,
 единые ошибки и request ID, local/external JWT, API keys, cookies с CSRF, роли/политики,
 локальные аккаунты с SQLite и заменяемым store, refresh rotation/reuse detection/logout,
-CORS, fixed-window rate limit, public output cache, health checks, request logs.
+CORS, fixed-window rate limit, public output cache, health checks, request logs,
+типизированные WebSocket endpoints с комнатами и валидацией.
 Полный пример соединяет Trexon.Configuration, Trexon.Logging и Trexon.Data.
 
 ## Чего версия не обещает
@@ -27,7 +28,8 @@ CORS, fixed-window rate limit, public output cache, health checks, request logs.
 - Планировщик, очередь задач, фоновые workers, hot loading модулей.
 
 Файловые ответы и multipart доступны через стандартный MVC API, но специализированные
-модули uploads, WebSocket, streaming и client generation пока не оформлены.
+модули uploads, binary streaming и client generation пока не оформлены.
+WebSocket API описан в [отдельной главе](WEBSOCKETS.md); он не реализует SignalR/backplane.
 
 ## Возможные следующие этапы
 

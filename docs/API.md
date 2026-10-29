@@ -35,7 +35,7 @@ route type идемпотентна; повторная регистрация m
 | `Routes(string prefix = "")` | Класс | Префикс + API binding/validation |
 | `Get/Post/Put/Patch/Delete/Head/Options(string template = "")` | Метод | HTTP route |
 | `Tag(string name)` | Класс/метод, несколько допустимы | OpenAPI tag |
-| `Summary(string text)` + `Description` | Метод | OpenAPI описание |
+| `Summary(string text)` + `Description` | Класс/метод | OpenAPI описание |
 | `Response(int statusCode)` | Метод | Документированный статус |
 | `Response(int statusCode, Type bodyType)` | Метод | Документированный статус и схема |
 
@@ -86,3 +86,15 @@ DTO запросов/ответов. [Users](USERS.md) описывает сро
 
 `Trexon.Web.Modules`: CorsModule, OutputCacheModule, RateLimitModule, HealthChecksModule,
 RequestLoggingModule, ServiceModuleExtensions. [Modules](MODULES.md) содержит параметры и defaults.
+
+## WebSocket — namespace Trexon.Web.Sockets
+
+`AddSocket<THandler>()` автоматически включает транспорт и маршрут `[Socket(path)]`.
+`UseWebSockets(Action<SocketOptions>)` необязателен и меняет defaults.
+`SocketHandler<T>` и `SocketHandler<TIn,TOut>` имеют обязательный `OnMessageAsync`
+и необязательные `OnConnectedAsync`/`OnDisconnectedAsync`.
+
+`SocketConnection<T>`: Id, User, HttpContext, CancellationToken, Route(name), Join(group),
+Leave(group), SendAsync(message, token), BroadcastAsync(message, group, token), CloseAsync(reason, token).
+Сетевая работа асинхронна; членство в группах — локальные синхронные операции.
+Схемы и lifecycle подробно описаны в [WebSockets](WEBSOCKETS.md).

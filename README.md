@@ -65,11 +65,37 @@ its automatically generated JWT key lasts only for the current process.
 | Public response caching using `[OutputCache]` | `UseOutputCache()` |
 | JSON dependency health reports | `UseHealthChecks()` |
 | Request logs through ILogger or a custom sink | `UseRequestLogging()` |
+| Typed WebSocket handlers, validation, rooms and async lifecycle | `AddSocket<THandler>()` |
 | Application modules | `AddModule<T>()` |
 
 Modules are opt-in; role and policy authorization uses standard `[Authorize]` attributes.
 JWT is configured **once** for server validation and Swagger Authorize. Settings still
 need a trusted issuer, audience, and a secret signing key or an external authority.
+
+## WebSocket with one handler
+
+<!-- verify: socket-echo -->
+```csharp
+using Trexon.Web;
+using Trexon.Web.Sockets;
+
+var app = TrexonApp.Create(args);
+app.AddSocket<EchoSocket>();
+await app.RunAsync();
+
+[Socket("/ws/echo")]
+public sealed class EchoSocket : SocketHandler<string>
+{
+    public override ValueTask OnMessageAsync(string message, SocketConnection<string> connection, CancellationToken token) =>
+        connection.SendAsync(message, token);
+}
+```
+
+No transport setup, framing, receive loop or JSON plumbing is required. Other payload types
+use JSON automatically; `SocketHandler<TIn,TOut>` supports distinct contracts. Existing
+`[Authorize]` and validators work on sockets. The [WebSocket guide](docs/WEBSOCKETS.md)
+describes groups, limits and lifecycle. Open `/chat` in the full sample to try public or
+cookie-authenticated private rooms. Swagger lists contracts in its WebSockets section.
 
 ## Reference from another project
 

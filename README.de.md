@@ -66,10 +66,35 @@ JWT-Schlüssel nur für den aktuellen Prozess.
 | Öffentlicher Antwort-Cache | `UseOutputCache()` |
 | Health Checks | `UseHealthChecks()` |
 | Request-Logging | `UseRequestLogging()` |
+| Typisierte WebSockets und Räume | `AddSocket<THandler>()` |
 | Eigene Module | `AddModule<T>()` |
 
 Ein Aufruf richtet JWT-Prüfung und Swagger gemeinsam ein. Aussteller, Audience und
 Signaturschlüssel müssen aus vertrauenswürdiger Konfiguration kommen.
+
+## WebSocket ohne manuelle Empfangsschleife
+
+<!-- verify: socket-echo -->
+```csharp
+using Trexon.Web;
+using Trexon.Web.Sockets;
+
+var app = TrexonApp.Create(args);
+app.AddSocket<EchoSocket>();
+await app.RunAsync();
+
+[Socket("/ws/echo")]
+public sealed class EchoSocket : SocketHandler<string>
+{
+    public override ValueTask OnMessageAsync(string message, SocketConnection<string> connection, CancellationToken token) =>
+        connection.SendAsync(message, token);
+}
+```
+
+Andere Nachrichtentypen verwenden automatisch JSON; `SocketHandler<TIn,TOut>` trennt
+Ein- und Ausgabe. Bestehende Authorize-Attribute und Validatoren gelten auch für Sockets.
+Im Beispiel zeigt `/chat` öffentliche und Cookie-geschützte Räume.
+[WebSocket-Leitfaden](docs/WEBSOCKETS.md).
 
 ## Einbindung und Prüfung
 

@@ -105,6 +105,7 @@ public sealed class CookieModule(string cookieName = "Trexon.Session") : ITrexon
         {
             if ((context.User.Identities.Any(i => i.AuthenticationType == AuthSchemes.Cookie) ||
                  context.GetEndpoint()?.Metadata.GetMetadata<Trexon.Web.Users.ValidateCookieCsrfAttribute>() != null) &&
+                !context.WebSockets.IsWebSocketRequest &&
                 !HttpMethods.IsGet(context.Request.Method) && !HttpMethods.IsHead(context.Request.Method) && !HttpMethods.IsOptions(context.Request.Method))
             {
                 try { await context.RequestServices.GetRequiredService<IAntiforgery>().ValidateRequestAsync(context); }

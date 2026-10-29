@@ -42,7 +42,7 @@ Builder выполняет только регистрацию. `BuildAsync` с�
 1. Обёртка request logging, если включён модуль.
 2. Обработчик исключений.
 3. Request ID и обработка пустых error responses.
-4. Routing.
+4. Routing и WebSocket transport, если есть socket handlers.
 5. CORS, если подключён.
 6. Authentication, затем authorization.
 7. Rate limiter, затем output cache, если подключены.
@@ -74,3 +74,12 @@ MVC использует reflection. Native AOT и aggressive trimming не по
 Swagger и SQLite являются зависимостями NuGet-пакета, даже если соответствующий модуль
 не включён; runtime-поведение модулей opt-in, но поставка пока одним пакетом.
 Отдельные extension-пакеты можно выделить позднее без усложнения первого приложения.
+
+## WebSocket
+
+AddSocket регистрирует endpoint с GET/CONNECT и metadata класса. Security middleware
+проверяет handshake до AcceptWebSocketAsync. Каждый handler и его DI scope живут до
+отключения; pipeline ожидает обработку соединения. SocketHandler управляет receive loop,
+сборкой фрагментов, JSON, MVC-валидацией и async validators. SocketPeer сериализует отправки,
+ограничивает время и закрывает соединение; SocketRoom хранит изолированный реестр endpoint.
+Сетевые операции и cleanup ожидаются, фоновых sender/reader jobs нет.

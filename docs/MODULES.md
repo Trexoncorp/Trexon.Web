@@ -73,6 +73,7 @@ public sealed class CatalogRoutes(Catalog catalog)
 | Rate limit | `UseRateLimit(100, TimeSpan.FromMinutes(1))` | Fixed window, без очереди, 429 + Retry-After |
 | Output cache | `UseOutputCache()` | Включает стандартный `[OutputCache(Duration = 30)]` |
 | Health | `UseHealthChecks("/health")` | JSON-статусы зарегистрированных проверок |
+| WebSocket | `AddSocket<ChatSocket>()` | Транспорт автоматически, типизированные сообщения, группы, auth |
 | Request logs | `UseRequestLogging()` | ILogger: метод, путь, статус, время, request ID |
 | Custom log sink | `UseRequestLogging(entry => ...)` | Адаптация к Trexon.Logging или иному приёмнику |
 
@@ -100,3 +101,5 @@ HealthChecksModule использует `Services.AddHealthChecks()`: добав
 
 Модуль нужен для повторного использования группы настроек. Для одного маршрута
 достаточно `AddRoutes<T>()`; не создавайте модуль только ради структуры папок.
+
+Для WebSocket-модулей см. [пример и контракты](WEBSOCKETS.md): отдельный receive loop и ручное управление фрагментами не нужны.

@@ -6,6 +6,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Chat.html" />
     <ProjectReference Include="../../Trexon.Web/Trexon.Web.csproj" />
     <PackageReference Include="Trexon.Logging" Version="1.0.0" />
     <PackageReference Include="Trexon.Configuration" Version="1.0.0" />
