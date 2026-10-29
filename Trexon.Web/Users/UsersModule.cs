@@ -28,6 +28,7 @@ public sealed class UsersModule : ITrexonModule
         if (!options.Prefix.StartsWith('/') || options.Prefix.Contains('{') || options.Prefix == "/") throw new ArgumentException("Users prefix must be a non-root absolute path without parameters.");
         if (options.RefreshLifetime <= TimeSpan.Zero || options.RefreshLifetime > TimeSpan.FromDays(90)) throw new ArgumentException("Refresh lifetime must be positive and at most 90 days.");
         if (options.RegistrationRoles.Any(string.IsNullOrWhiteSpace)) throw new ArgumentException("Registration roles cannot be empty.");
+        app.DocsLoginPath = options.Prefix.TrimEnd('/') + "/login";
         app.Services.AddSingleton(options);
         if (_database != null) app.Services.TryAddSingleton<IUserStore>(_ => new SqliteUserStore(_database));
         app.Services.TryAddSingleton<IPasswordHasher<StoredUser>, PasswordHasher<StoredUser>>();

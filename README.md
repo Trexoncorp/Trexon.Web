@@ -71,6 +71,9 @@ its automatically generated JWT key lasts only for the current process.
 Modules are opt-in; role and policy authorization uses standard `[Authorize]` attributes.
 JWT is configured **once** for server validation and Swagger Authorize. Settings still
 need a trusted issuer, audience, and a secret signing key or an external authority.
+With `UseUsers()`, Swagger Authorize also offers username/password login and applies the
+access token automatically. The [complete sample](examples/Trexon.Web.Sample/Program.cs)
+keeps all application code and its chat client in one commented file.
 
 ## WebSocket with one handler
 

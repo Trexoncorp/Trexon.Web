@@ -10,8 +10,6 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <!-- Встраиваем страницу чата в DLL: Program.cs отдаёт её через ресурс сборки. -->
-    <EmbeddedResource Include="Chat.html" />
     <!-- Проверяем текущий код Trexon.Web напрямую из соседнего проекта решения. -->
     <ProjectReference Include="../../Trexon.Web/Trexon.Web.csproj" />
     <!-- Остальные Trexon-библиотеки подключены как опубликованные NuGet-пакеты. -->

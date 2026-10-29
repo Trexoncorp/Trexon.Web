@@ -62,7 +62,7 @@ dotnet run --project examples/Trexon.Web.Sample
 | Проверка JWT внешнего провайдера | `UseJwtAuthority(authority, audience)` |
 | API keys с собственным валидатором | `UseApiKeys<TValidator>()` |
 | Cookie-аутентификация и CSRF-защита | `UseCookies()` |
-| Пользователи, SQLite или своё хранилище, refresh/logout | `UseUsers(path)` |
+| Пользователи, вход по паролю в Swagger, SQLite, refresh/logout | `UseUsers(path)` |
 | Роли и политики | Стандартный `[Authorize]` |
 | CORS | `UseCors(origin)` |
 | Ограничение запросов | `UseRateLimit(100)` |

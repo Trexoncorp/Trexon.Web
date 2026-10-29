@@ -6,6 +6,11 @@ Trexon.Web provides explicit attribute routes and reusable service modules on to
 ASP.NET Core MVC/Kestrel. This guide describes the unreleased `1.0.0-dev` API. It does
 not claim higher throughput than Minimal APIs or Native AOT compatibility.
 
+
+With `UseUsers()`, Swagger **Authorize** includes username/password login and applies the
+Bearer token automatically. Credentials are not persisted; reload or token expiry requires
+a new login. The complete sample keeps its code and embedded chat page in one `Program.cs`.
+
 ## Start with the runnable example
 
 Install SDK 10 and ASP.NET Core runtime 8. From the repository root:

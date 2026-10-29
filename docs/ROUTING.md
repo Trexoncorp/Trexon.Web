@@ -24,7 +24,7 @@ public sealed class ProductsRoutes(ProductService service)
 ```
 
 Это фрагмент: `ProductService` и `ProductView` принадлежат приложению. Полный вариант
-с DI и хранилищем находится в [примере](../examples/Trexon.Web.Sample/TaskRoutes.cs).
+с DI и хранилищем находится в [примере](../examples/Trexon.Web.Sample/Program.cs).
 Префикс класса и относительный путь метода объединяются. Как и в MVC, путь метода,
 начинающийся с `/` или `~/`, заменяет префикс; используйте это осознанно.
 

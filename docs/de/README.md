@@ -6,6 +6,11 @@ Trexon.Web stellt explizite Routenklassen, Attribute und wiederverwendbare Modul
 auf ASP.NET Core MVC/Kestrel bereit. Beschrieben wird `1.0.0-dev`, noch unveröffentlicht.
 Ein Leistungsvorteil gegenüber Minimal APIs und Native-AOT-Unterstützung werden nicht behauptet.
 
+
+Mit `UseUsers()` bietet Swagger **Authorize** die Anmeldung mit Benutzername und Passwort.
+Das Bearer-Token wird automatisch verwendet und nur im Speicher des Tabs gehalten.
+Das vollständige Beispiel enthält Anwendung und Chat-Seite in einer einzigen `Program.cs`.
+
 ## Einstieg
 
 SDK 10 und ASP.NET Core Runtime 8 installieren. Im Repository:

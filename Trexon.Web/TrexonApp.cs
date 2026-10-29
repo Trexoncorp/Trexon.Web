@@ -29,6 +29,7 @@ public sealed class TrexonApp
     private bool _built;
     internal bool HasCors, HasRateLimiter, HasOutputCache;
     internal bool HasLocalJwt;
+    internal string? DocsLoginPath;
     internal Trexon.Web.Sockets.WebSocketModule? Sockets;
     internal string ApiKeyHeader = "X-API-Key";
     internal Func<Trexon.Web.Modules.RequestLog, CancellationToken, ValueTask>? RequestLogWriter;
@@ -231,7 +232,19 @@ public sealed class TrexonApp
                     var schema = new Uri("https://trexon.invalid" + Options.OpenApiPath);
                     options.SwaggerEndpoint(ui.MakeRelativeUri(schema).ToString(), Options.Title);
                     options.DocumentTitle = Options.Title;
+                    if (DocsLoginPath != null)
+                    {
+                        var login = new Uri("https://trexon.invalid" + DocsLoginPath);
+                        options.ConfigObject.AdditionalItems["trexonLoginUrl"] = ui.MakeRelativeUri(login).ToString();
+                        options.ConfigObject.Plugins ??= [];
+                        options.ConfigObject.Plugins.Add("TrexonLoginPlugin");
+                        options.InjectJavascript("./trexon-login.js");
+                    }
                 });
+                if (DocsLoginPath != null)
+                    app.MapGet(Options.DocsPath.TrimEnd('/') + "/trexon-login.js", () => Results.Stream(
+                        typeof(TrexonApp).Assembly.GetManifestResourceStream("Trexon.Web.Internal.SwaggerLogin.js")!,
+                        "text/javascript; charset=utf-8")).AllowAnonymous().ExcludeFromDescription();
             }
             app.MapControllers();
             foreach (var configure in _endpoints) configure(app);

@@ -214,7 +214,7 @@ Swagger показывает раздел WebSockets с адресами и inpu
 описания, форматы text/json, авторизационные metadata и ссылки на схемы в components.schemas.
 Там же присутствует SocketErrorMessage. Это расширение OpenAPI, не стандарт AsyncAPI.
 HTTP Try it out не изображает WebSocket-клиент; используйте `/chat`, браузерный WebSocket
-или ClientWebSocket. [Пример](../examples/Trexon.Web.Sample/ChatSocket.cs) демонстрирует
+или ClientWebSocket. [Пример](../examples/Trexon.Web.Sample/Program.cs) демонстрирует
 public/private комнаты на том же контракте.
 
 Первичный источник транспортных ограничений: [ASP.NET Core WebSockets](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/websockets?view=aspnetcore-8.0).
