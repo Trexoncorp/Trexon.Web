@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <Version>1.0.0-dev</Version>
+    <PackageId>Trexon.Web</PackageId>
+    <Title>Trexon.Web</Title>
+    <Authors>Trexoncorp</Authors>
+    <PackageProjectUrl>https://github.com/Trexoncorp/Trexon.Web</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Trexoncorp/Trexon.Web</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+</Project>
