@@ -484,3 +484,14 @@ $RECYCLE.BIN/
 # Local environment variants (commit only sample values)
 .env.*
 !.env.example
+
+# Local service data
+**/data/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+.local-data/

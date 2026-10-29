@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../Trexon.Web/Trexon.Web.csproj" />
+    <PackageReference Include="Trexon.Logging" Version="1.0.0" />
+    <PackageReference Include="Trexon.Configuration" Version="1.0.0" />
+    <PackageReference Include="Trexon.Data" Version="1.0.0" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,76 @@
+@baseUrl = http://localhost:5080
+@username = alice
+@password = replace-with-your-local-password
+
+### OpenAPI
+GET {{baseUrl}}/openapi.json
+
+### Register (201; 409 if username exists)
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{"username":"{{username}}","password":"{{password}}"}
+
+### Login (REST Client can reference the named response below)
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{"username":"{{username}}","password":"{{password}}"}
+
+### Me
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Create
+# @name createTask
+POST {{baseUrl}}/tasks
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{"title":"Explore Trexon.Web"}
+
+### List
+GET {{baseUrl}}/tasks?completed=false&take=10
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Read
+GET {{baseUrl}}/tasks/{{createTask.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Update
+PUT {{baseUrl}}/tasks/{{createTask.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{"title":"Read the documentation","completed":true}
+
+### Validation failure (400)
+POST {{baseUrl}}/tasks
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{"title":""}
+
+### Admin role (403 for a regular account)
+GET {{baseUrl}}/demo/admin
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Cached public response
+GET {{baseUrl}}/demo/cached
+
+### Structured 409
+GET {{baseUrl}}/demo/conflict
+
+### Dependency health
+GET {{baseUrl}}/health
+
+### Delete
+DELETE {{baseUrl}}/tasks/{{createTask.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+
+### Refresh (use the NEW refresh token returned here for the next refresh)
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{"refreshToken":"{{login.response.body.$.refreshToken}}"}

@@ -1,0 +1,34 @@
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - run: dotnet restore Trexon.Web.slnx
+      - run: dotnet build Trexon.Web.slnx --configuration Release --no-restore -warnaserror
+      - run: dotnet test --solution Trexon.Web.slnx --configuration Release --no-build --no-restore
+      - run: python scripts/check-docs.py
+      - run: python scripts/smoke-sample.py
+      - run: dotnet pack Trexon.Web/Trexon.Web.csproj --configuration Release --no-build --output artifacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages-${{ matrix.os }}
+          path: artifacts/*
