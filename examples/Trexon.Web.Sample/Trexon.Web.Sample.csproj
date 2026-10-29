@@ -1,15 +1,25 @@
+<!-- Web SDK добавляет возможности запуска ASP.NET Core веб-приложения. -->
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
+    <!-- Пример использует тот же .NET 8, что и библиотека. -->
     <TargetFramework>net8.0</TargetFramework>
+    <!-- Стандартные using генерирует SDK; nullable-проверки помогают замечать null. -->
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- Пример запускается как приложение, его не нужно упаковывать в NuGet. -->
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Встраиваем страницу чата в DLL: Program.cs отдаёт её через ресурс сборки. -->
     <EmbeddedResource Include="Chat.html" />
+    <!-- Проверяем текущий код Trexon.Web напрямую из соседнего проекта решения. -->
     <ProjectReference Include="../../Trexon.Web/Trexon.Web.csproj" />
+    <!-- Остальные Trexon-библиотеки подключены как опубликованные NuGet-пакеты. -->
+    <!-- Структурированные логи HTTP-запросов. -->
     <PackageReference Include="Trexon.Logging" Version="1.0.0" />
+    <!-- Типизированное чтение настроек из окружения. -->
     <PackageReference Include="Trexon.Configuration" Version="1.0.0" />
+    <!-- Конфигурация SQLite, схема сущностей и сессии работы с задачами. -->
     <PackageReference Include="Trexon.Data" Version="1.0.0" />
   </ItemGroup>
 </Project>

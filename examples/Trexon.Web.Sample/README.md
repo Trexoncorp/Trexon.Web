@@ -179,12 +179,19 @@ HTTP-логи идут через Trexon.Logging; исключения — че�
 
 ## 9. Где смотреть код
 
+Код примера прокомментирован на русском. Начните с `Program.cs`, затем прочитайте
+модуль и маршруты задач; WebSocket-обработчик и браузерный клиент можно изучать отдельно.
+Комментарии объясняют этапы запуска, источники параметров, проверки доступа и отмену I/O.
+
 - [Program.cs](Program.cs): состав приложения и подключение готовых модулей.
 - [SampleSettings.cs](SampleSettings.cs): типизированные env-настройки.
 - [TaskModule.cs](TaskModule.cs): свой модуль, async startup, Trexon.Data, свой validator, middleware и health check.
 - [TaskRoutes.cs](TaskRoutes.cs): полный CRUD, параметрические ограничения, статусы и описания.
 - [DiagnosticsRoutes.cs](DiagnosticsRoutes.cs): роли, policy, API key validator, кеш и ошибки.
-- [requests.http](requests.http): запросы для HTTP-клиента IDE.
+- [ChatSocket.cs](ChatSocket.cs): жизненный цикл подключения, проверка сообщений и рассылка по комнатам.
+- [Chat.html](Chat.html): HTML/CSS и JavaScript клиента с пояснениями cookie-входа и WebSocket-событий.
+- [requests.http](requests.http): последовательный сценарий для HTTP-клиента IDE с ожидаемыми статусами.
+- [Trexon.Web.Sample.csproj](Trexon.Web.Sample.csproj): зависимости и встраивание страницы чата в сборку.
 
 Каждая операция ввода-вывода передаёт CancellationToken. SQLite-драйвер внутри остаётся
 синхронным; ограничение описано в [главе о пользователях](../../docs/USERS.md).

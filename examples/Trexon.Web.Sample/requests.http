@@ -1,28 +1,36 @@
+# Сценарий для REST Client в IDE: сначала запустите пример и выполняйте запросы по порядку.
+# Замените пароль локальным значением; если аккаунт уже существует, используйте его пароль.
+# Переменные ниже принадлежат HTTP-клиенту и не настраивают сервер.
 @baseUrl = http://localhost:5080
 @username = alice
 @password = replace-with-your-local-password
 
-### OpenAPI
+### OpenAPI: JSON-описание операций; браузерный Swagger расположен по /docs
 GET {{baseUrl}}/openapi.json
 
-### Register (201; 409 if username exists)
+### Регистрация: 201 при создании, 409 если имя уже занято
+# Пользователь получает обычную роль User; роли нельзя выдать себе через JSON запроса.
 POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {"username":"{{username}}","password":"{{password}}"}
 
-### Login (REST Client can reference the named response below)
+### Вход: сохраняем именованный ответ login для подстановки токенов ниже
+# Именованный запрос поддерживается REST Client. До закрытых запросов выполните вход успешно.
+# Ответ содержит accessToken для Bearer и refreshToken для обновления пары токенов.
 # @name login
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {"username":"{{username}}","password":"{{password}}"}
 
-### Me
+### Текущий аккаунт: accessToken берётся из JSON-ответа login
+# В HTTP-заголовке нужен префикс Bearer; в поле Bearer окна Swagger вставляется только токен.
 GET {{baseUrl}}/auth/me
 Authorization: Bearer {{login.response.body.$.accessToken}}
 
-### Create
+### Создание: 201, Location и задача с сгенерированным id
+# Владелец берётся из identity на сервере. Сохраняем ответ как createTask для следующих шагов.
 # @name createTask
 POST {{baseUrl}}/tasks
 Authorization: Bearer {{login.response.body.$.accessToken}}
@@ -30,47 +38,55 @@ Content-Type: application/json
 
 {"title":"Explore Trexon.Web"}
 
-### List
+### Список только своих незавершённых задач: фильтр и ограничение числа результатов
 GET {{baseUrl}}/tasks?completed=false&take=10
 Authorization: Bearer {{login.response.body.$.accessToken}}
 
-### Read
+### Чтение: id автоматически подставляется из createTask
+# Чужой или отсутствующий id даёт 404; запрос без учётных данных — 401.
 GET {{baseUrl}}/tasks/{{createTask.response.body.$.id}}
 Authorization: Bearer {{login.response.body.$.accessToken}}
 
-### Update
+### Обновление: меняем разрешённые поля своей задачи
 PUT {{baseUrl}}/tasks/{{createTask.response.body.$.id}}
 Authorization: Bearer {{login.response.body.$.accessToken}}
 Content-Type: application/json
 
 {"title":"Read the documentation","completed":true}
 
-### Validation failure (400)
+### Ошибка валидации: 400 и описание поля Title в errors
+# Обработчик Create не вызывается, если входная модель не прошла проверку.
 POST {{baseUrl}}/tasks
 Authorization: Bearer {{login.response.body.$.accessToken}}
 Content-Type: application/json
 
 {"title":""}
 
-### Admin role (403 for a regular account)
+### Проверка роли: обычный аккаунт получает 403 даже с валидным токеном
+# Для успеха запустите сервер с TREXON_ADMIN_PASSWORD и войдите как admin.
 GET {{baseUrl}}/demo/admin
 Authorization: Bearer {{login.response.body.$.accessToken}}
 
-### Cached public response
+### Кеш: повторите анонимный запрос в течение 30 секунд и сравните JSON
 GET {{baseUrl}}/demo/cached
 
-### Structured 409
+### Намеренный конфликт: 409 в формате Problem Details
 GET {{baseUrl}}/demo/conflict
 
-### Dependency health
+### Здоровье: включает доступность SQLite-базы задач
 GET {{baseUrl}}/health
 
-### Delete
+### Удаление: 204 без тела; повторное удаление того же id даст 404
 DELETE {{baseUrl}}/tasks/{{createTask.response.body.$.id}}
 Authorization: Bearer {{login.response.body.$.accessToken}}
 
-### Refresh (use the NEW refresh token returned here for the next refresh)
+### Обновление токенов: получите новую пару accessToken/refreshToken
+# Этот запрос использует refreshToken из login ОДИН раз. Для следующего обновления
+# подставьте новый refreshToken из ответа. Повтор старого отзовёт всё семейство токенов.
 POST {{baseUrl}}/auth/refresh
 Content-Type: application/json
 
 {"refreshToken":"{{login.response.body.$.refreshToken}}"}
+
+# WebSocket проверяйте через /chat в браузере: это отдельный протокол, не обычный HTTP-запрос.
+# Для cookie-входа, API key, policy и logout дополнительные команды приведены в README.md.
