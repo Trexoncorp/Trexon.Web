@@ -204,9 +204,12 @@ public sealed class WebSocketTests
     [Fact]
     public async Task Concurrent_broadcasts_are_serialized_per_recipient_without_losing_messages()
     {
-        await using var host = await TestHost.Start(app => app.AddSocket<RoomSocket>());
-        using var first = await Connect(host, "/ws/rooms/shared");
-        using var second = await Connect(host, "/ws/rooms/shared");
+        await using var host = await TestHost.Start(app => app.AddSocket<ReadyRoomSocket>());
+        using var first = await Connect(host, "/ws/ready-rooms/shared");
+        using var second = await Connect(host, "/ws/ready-rooms/shared");
+        // A completed HTTP upgrade does not guarantee OnConnectedAsync has joined the room.
+        Assert.Equal("ready", (await Read(first)).Text);
+        Assert.Equal("ready", (await Read(second)).Text);
         var incoming = Enumerable.Range(0, 12).Select(i => "message-" + i).ToArray();
         await Task.WhenAll(SendAll(first, incoming[..6]), SendAll(second, incoming[6..]));
         foreach (var socket in new[] { first, second })
@@ -383,4 +386,16 @@ public sealed class OptionalSocket : SocketHandler<string>
 {
     public override ValueTask OnMessageAsync(string message, SocketConnection<string> connection, CancellationToken token) =>
         connection.SendAsync((connection.Route("room") ?? "lobby") + ":" + message, token);
+}
+
+[Socket("/ws/ready-rooms/{room}")]
+public sealed class ReadyRoomSocket : SocketHandler<string>
+{
+    public override async ValueTask OnConnectedAsync(SocketConnection<string> connection, CancellationToken token)
+    {
+        connection.Join(connection.Route("room")!);
+        await connection.SendAsync("ready", token);
+    }
+    public override ValueTask OnMessageAsync(string message, SocketConnection<string> connection, CancellationToken token) =>
+        connection.BroadcastAsync(message, connection.Route("room"), token);
 }
