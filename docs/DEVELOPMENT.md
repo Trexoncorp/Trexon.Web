@@ -12,6 +12,9 @@
 - `scripts/check-docs.py` — проверка ссылок и компиляция завершённых C#-примеров.
 - `scripts/smoke-sample.py` — полный пример через реальный Kestrel на временном порту.
 - `scripts/smoke-package.py` — установка NuGet-пакета в чистый проект и HTTP-проверка.
+- `templates/` — отдельный пакет Trexon.Templates и исходники `dotnet new trexon-api`.
+- `scripts/smoke-template.py` — установка шаблона в изолированное CLI-окружение,
+  генерация проектов, проверка имён, CRUD и сохранности SQLite после перезапуска.
 
 ## Команды
 
@@ -23,6 +26,7 @@ python3 scripts/check-docs.py
 python3 scripts/smoke-sample.py
 dotnet pack Trexon.Web/Trexon.Web.csproj --configuration Release --no-build --output artifacts
 python3 scripts/smoke-package.py --source artifacts
+python3 scripts/smoke-template.py
 dotnet list Trexon.Web.slnx package --vulnerable --include-transitive
 ```
 
@@ -65,3 +69,7 @@ GitHub Actions строит solution с предупреждениями как 
 тестов, проверяет документацию и полный пример, создаёт nupkg/snupkg и проверяет установку
 пакета в чистый проект. Тег запускает эти же проверки и GitHub Release; NuGet публикуется
 через Upload. [Порядок выпуска](PUBLISHING.md).
+
+CI также собирает Trexon.Templates и проверяет приложение, созданное из nupkg.
+У шаблона отдельная версия и отдельная публикация; он использует опубликованные
+NuGet-зависимости. [Установка и распространение шаблона](../templates/README.md).

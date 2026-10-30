@@ -1,5 +1,12 @@
 # Changelog
 
+## Trexon.Templates 1.0.0 — 2026-10-30
+
+- Added the separate Trexon.Templates 1.0.0 package: `dotnet new trexon-api`
+  generates a standalone notes API with Swagger, validated CRUD, SQLite,
+  typed environment configuration, structured logs and HTTP request examples.
+- Added isolated template installation/generation and real HTTP/restart checks to CI.
+
 ## 1.0.1 — 2026-10-30
 
 - Added `ApiOptions.Prefix` to mount the entire service, including docs, auth,

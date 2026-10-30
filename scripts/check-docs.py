@@ -15,7 +15,8 @@ SNIPPET = re.compile(r'<!--\s*verify:\s*([a-z0-9-]+)\s*-->\s*```csharp\s*\n(.*?)
 def main():
     snippets = {}
     errors = []
-    documents = [*ROOT.glob('README*.md'), *ROOT.glob('CHANGELOG.md'), *ROOT.glob('docs/**/*.md'), *ROOT.glob('examples/**/*.md')]
+    documents = [*ROOT.glob('README*.md'), *ROOT.glob('CHANGELOG.md'), *ROOT.glob('docs/**/*.md'),
+                 *ROOT.glob('examples/**/*.md'), *ROOT.glob('templates/**/*.md')]
     for path in documents:
         content = path.read_text(encoding='utf-8')
         for raw in LINK.findall(content):

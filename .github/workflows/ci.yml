@@ -31,6 +31,10 @@ jobs:
       - run: python scripts/smoke-sample.py
       - run: dotnet pack Trexon.Web/Trexon.Web.csproj --configuration Release --no-build --output artifacts
       - run: python scripts/smoke-package.py --source artifacts
+      - name: Pack starter template
+        run: dotnet pack templates/Trexon.Templates.csproj --configuration Release --output artifacts -warnaserror
+      - name: Verify installed starter template
+        run: python scripts/smoke-template.py --package artifacts/Trexon.Templates.1.0.0.nupkg --sdk 8.0.100
       - uses: actions/upload-artifact@v4
         with:
           name: packages-${{ matrix.os }}

@@ -1,0 +1,58 @@
+name: Template release
+
+on:
+  push:
+    tags: ['templates-v*']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: template-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Validate template version and main ancestry
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          version="$(python3 -c 'import xml.etree.ElementTree as E; print(E.parse("templates/Trexon.Templates.csproj").findtext("PropertyGroup/Version"))')"
+          test "$RELEASE_TAG" = "templates-v$version"
+          git merge-base --is-ancestor HEAD origin/main
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Pack template
+        run: dotnet pack templates/Trexon.Templates.csproj -c Release -o artifacts/templates -p:ContinuousIntegrationBuild=true -warnaserror
+      - name: Verify release package
+        run: python scripts/smoke-template.py --package artifacts/templates/Trexon.Templates.1.0.0.nupkg --sdk 8.0.100
+      - name: Publish verified template assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          cd artifacts/templates
+          sha256sum *.nupkg > SHA256SUMS
+          gh release create "$RELEASE_TAG" --verify-tag --title "Trexon.Templates ${RELEASE_TAG#templates-v}" \
+            --notes 'Starter notes API with Swagger, SQLite, validated CRUD, typed settings and structured logs. Install: dotnet new install Trexon.Templates. Create: dotnet new trexon-api -n MyApi.' \
+            *.nupkg SHA256SUMS

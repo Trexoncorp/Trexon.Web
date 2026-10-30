@@ -8,6 +8,22 @@
 
 **Версия `1.0.1`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.1) · [История изменений](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md). Преимущество в производительности над Minimal APIs не заявляется.
 
+## Стартовое приложение одной командой
+
+Пакет `Trexon.Templates` создаёт API заметок со Swagger, SQLite, валидацией,
+типизированными настройками и структурированными логами:
+
+```sh
+dotnet new install Trexon.Templates
+dotnet new trexon-api -n MyApi
+cd MyApi
+dotnet run
+```
+
+Откройте [127.0.0.1:5090/docs](http://127.0.0.1:5090/docs).
+Для первого запуска не нужны `.env` и отдельный сервер БД.
+[Сборка, установка локального пакета и распространение](templates/README.md).
+
 ## Первое приложение целиком
 
 <!-- verify: first-api -->

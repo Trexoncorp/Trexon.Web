@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Trexoncorp",
+  "classifications": ["Web", "Web API", "Trexon"],
+  "identity": "Trexon.Templates.Api.CSharp",
+  "name": "Trexon API",
+  "description": "A ready-to-run notes API with Swagger, typed settings, structured logs and SQLite.",
+  "shortName": "trexon-api",
+  "sourceName": "TrexonApi",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "symbols": {
+    "skipRestore": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Skip automatic NuGet restore after creating the project."
+    }
+  },
+  "primaryOutputs": [{ "path": "TrexonApi.csproj" }],
+  "postActions": [
+    {
+      "condition": "(!skipRestore)",
+      "description": "Restore NuGet packages.",
+      "manualInstructions": [{ "text": "Run 'dotnet restore'." }],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
+  ]
+}

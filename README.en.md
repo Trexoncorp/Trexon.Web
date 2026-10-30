@@ -9,6 +9,21 @@ Built on ASP.NET Core MVC and Kestrel. MIT license.
 **Version `1.0.1`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.1) · [Release notes](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md).
 No throughput advantage over Minimal APIs is claimed.
 
+## Generate a starter API
+
+After installing `Trexon.Templates`, create a notes API with Swagger, SQLite,
+validation, typed settings and structured logs:
+
+```sh
+dotnet new install Trexon.Templates
+dotnet new trexon-api -n MyApi
+cd MyApi
+dotnet run
+```
+
+Open [127.0.0.1:5090/docs](http://127.0.0.1:5090/docs).
+[Build and install the local template package](templates/README.md).
+
 ## A complete first API
 
 <!-- verify: first-api -->

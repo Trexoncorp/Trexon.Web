@@ -1,0 +1,32 @@
+@baseUrl = http://127.0.0.1:5090
+
+### Check the database
+GET {{baseUrl}}/health
+
+### Create a note (use the returned id below)
+POST {{baseUrl}}/notes
+Content-Type: application/json
+
+{
+  "title": "My first note",
+  "text": "Built with Trexon"
+}
+
+### List notes
+GET {{baseUrl}}/notes
+
+### Read a note
+GET {{baseUrl}}/notes/1
+
+### Update a note
+PUT {{baseUrl}}/notes/1
+Content-Type: application/json
+
+{
+  "title": "Updated note",
+  "text": "Saved in SQLite",
+  "archived": true
+}
+
+### Delete a note
+DELETE {{baseUrl}}/notes/1

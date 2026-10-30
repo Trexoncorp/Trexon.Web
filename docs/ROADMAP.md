@@ -11,6 +11,8 @@ initialization, Swagger UI и OpenAPI, MVC binding/DataAnnotations, свои asy
 CORS, fixed-window rate limit, public output cache, health checks, request logs,
 типизированные WebSocket endpoints с комнатами и валидацией.
 Полный пример соединяет Trexon.Configuration, Trexon.Logging и Trexon.Data.
+Отдельный пакет [Trexon.Templates](../templates/README.md) создаёт стартовый API
+командой `dotnet new trexon-api`.
 
 ## Чего версия не обещает
 
@@ -34,5 +36,5 @@ WebSocket API описан в [отдельной главе](WEBSOCKETS.md); о
 ## Возможные следующие этапы
 
 Приоритет определяется реальными приложениями: улучшение UX Swagger cookie auth,
-отдельные пакеты модулей, сетевое хранилище аккаунтов, версии схемы, benchmark с равными
-условиями и проект-шаблон `dotnet new`. Это направления развития, не текущие функции.
+отдельные пакеты модулей, сетевое хранилище аккаунтов, версии схемы и benchmark с равными
+условиями. Это направления развития, не текущие функции.

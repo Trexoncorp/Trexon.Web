@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <PackageId>Trexon.Templates</PackageId>
+    <Version>1.0.0</Version>
+    <PackageReleaseNotes>First release: dotnet new trexon-api generates a notes API with Swagger, SQLite, validated CRUD, typed settings and structured logs.</PackageReleaseNotes>
+    <Authors>Trexoncorp</Authors>
+    <Description>Starter HTTP APIs with Trexon.Web, Configuration, Logging and SQLite persistence.</Description>
+    <PackageTags>dotnet-new;templates;trexon;webapi</PackageTags>
+    <PackageProjectUrl>https://github.com/Trexoncorp/Trexon.Web</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Trexoncorp/Trexon.Web</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageType>Template</PackageType>
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <ContentTargetFolders>content</ContentTargetFolders>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="trexon-api/*.cs;trexon-api/*.csproj;trexon-api/*.http;trexon-api/README.md;trexon-api/.gitignore;trexon-api/.env.example;trexon-api/.template.config/template.json;trexon-api/.template.config/dotnetcli.host.json" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
+    <None Include="../LICENSE" Pack="true" PackagePath="/" />
+  </ItemGroup>
+</Project>
