@@ -126,15 +126,21 @@ public sealed class DeveloperExperienceTests
     [Fact]
     public async Task Current_user_uses_real_authentication_and_anonymous_id_is_401()
     {
-        await using var api = await TrexonTest.CreateAsync(app => app.UseJwt(TestHost.Jwt).AddRoutes<IdentityRoutes>(), cancellationToken: Token);
+        await using var api = await TrexonTest.CreateAsync(app => app.UseJwt(TestHost.Jwt).AddRoutes<IdentityRoutes>().AddSocket<IdentitySocket>(), cancellationToken: Token);
         Assert.Equal(HttpStatusCode.Unauthorized, (await api.Client.GetAsync("/identity", Token)).StatusCode);
         var issuer = api.Services.GetRequiredService<ITokenIssuer>();
-        api.Client.DefaultRequestHeaders.Authorization = new("Bearer", issuer.Issue("42", "Ada", ["Admin"]).Token);
+        var accessToken = issuer.Issue("42", "Ada", ["Admin"]).Token;
+        api.Client.DefaultRequestHeaders.Authorization = new("Bearer", accessToken);
         var user = await api.Client.GetFromJsonAsync<IdentityView>("/identity", Token);
         Assert.Equal("42", user!.Id);
         Assert.Equal("Ada", user.Name);
         Assert.Equal(["Admin"], user.Roles);
         Assert.True(user.Admin);
+        var sockets = api.CreateWebSocketClient();
+        sockets.ConfigureRequest = request => request.Headers.Authorization = "Bearer " + accessToken;
+        using var socket = await sockets.ConnectAsync(new Uri("ws://localhost/ws/current-user"), Token);
+        Assert.Equal("42", await Exchange(socket, "identity"));
+        await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "done", Token);
     }
 
     [Fact]
@@ -264,4 +270,11 @@ public sealed class SecondStartup(MessageDependency dependency, MessageState sta
         state.Validated.Add(dependency.Id);
         return ValueTask.CompletedTask;
     }
+}
+
+[Socket("/ws/current-user"), Authorize]
+public sealed class IdentitySocket(ICurrentUser user) : SocketMessageHandler<string>
+{
+    public override ValueTask OnMessageAsync(string message, SocketConnection<string> connection, CancellationToken cancellationToken)
+        => connection.SendAsync(user.Id, cancellationToken);
 }
