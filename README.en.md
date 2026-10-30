@@ -1,12 +1,12 @@
 # Trexon.Web
 
-[English](README.md) · [Русский](README.ru.md) · [Deutsch](README.de.md)
+[English](https://github.com/Trexoncorp/Trexon.Web/blob/main/README.md) · [Русский](https://github.com/Trexoncorp/Trexon.Web/blob/main/README.ru.md) · [Deutsch](https://github.com/Trexoncorp/Trexon.Web/blob/main/README.de.md)
 
 Attribute-first HTTP APIs for C# / .NET 8+. Explicit route classes, async startup,
 automatic validation, Swagger UI at `/docs`, and optional service modules.
 Built on ASP.NET Core MVC and Kestrel. MIT license.
 
-**Version `1.0.0`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.0) · [Release notes](CHANGELOG.md).
+**Version `1.0.0`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.0) · [Release notes](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md).
 No throughput advantage over Minimal APIs is claimed.
 
 ## A complete first API
@@ -39,10 +39,10 @@ No base controller, assembly scanning, or explicit Swagger setup is required.
 dotnet run --project examples/Trexon.Web.Calculator
 ```
 
-[One Program.cs](examples/Trexon.Web.Calculator/Program.cs) demonstrates four operations,
+[One Program.cs](https://github.com/Trexoncorp/Trexon.Web/blob/main/examples/Trexon.Web.Calculator/Program.cs) demonstrates four operations,
 parameter validation, JSON responses and Swagger at `http://127.0.0.1:5081/docs`.
 Use `await web.RunAsync(5081)` with either `TrexonApp` or a built `WebApplication` to
-choose the HTTP port. [Walkthrough](examples/Trexon.Web.Calculator/README.md).
+choose the HTTP port. [Walkthrough](https://github.com/Trexoncorp/Trexon.Web/blob/main/examples/Trexon.Web.Calculator/README.md).
 
 ## Try the complete service
 
@@ -57,7 +57,7 @@ SQLite task CRUD, per-user ownership, registration, JWT/refresh rotation,
 roles, policies, API keys, HTTPS cookie sessions with CSRF protection, custom
 validation, error mappings, a custom module, output caching, CORS, rate limits,
 health checks, and Trexon.Logging/Configuration/Data integration.
-Follow the [sample walkthrough](examples/Trexon.Web.Sample/README.md) for requests,
+Follow the [sample walkthrough](https://github.com/Trexoncorp/Trexon.Web/blob/main/examples/Trexon.Web.Sample/README.md) for requests,
 admin setup, HTTPS, and all feature demonstrations. The example runs without secrets;
 its automatically generated JWT key lasts only for the current process.
 
@@ -83,7 +83,7 @@ Modules are opt-in; role and policy authorization uses standard `[Authorize]` at
 JWT is configured **once** for server validation and Swagger Authorize. Settings still
 need a trusted issuer, audience, and a secret signing key or an external authority.
 With `UseUsers()`, Swagger Authorize also offers username/password login and applies the
-access token automatically. The [complete sample](examples/Trexon.Web.Sample/Program.cs)
+access token automatically. The [complete sample](https://github.com/Trexoncorp/Trexon.Web/blob/main/examples/Trexon.Web.Sample/Program.cs)
 keeps all application code and its chat client in one commented file.
 
 ## WebSocket with one handler
@@ -107,7 +107,7 @@ public sealed class EchoSocket : SocketHandler<string>
 
 No transport setup, framing, receive loop or JSON plumbing is required. Other payload types
 use JSON automatically; `SocketHandler<TIn,TOut>` supports distinct contracts. Existing
-`[Authorize]` and validators work on sockets. The [WebSocket guide](docs/WEBSOCKETS.md)
+`[Authorize]` and validators work on sockets. The [WebSocket guide](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/WEBSOCKETS.md)
 describes groups, limits and lifecycle. Open `/chat` in the full sample to try public or
 cookie-authenticated private rooms. The built-in **WebSocket console** at `/docs/ws` lets
 you choose endpoints, fill route parameters, generate JSON examples and inspect messages
@@ -125,17 +125,17 @@ dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.0
 
 Replace `Hello/Program.cs` with the first example. Run with
 `dotnet run --project Hello -- --urls http://localhost:5080`.
-For a local NuGet feed, see [packaging](docs/PUBLISHING.md).
+For a local NuGet feed, see [packaging](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/PUBLISHING.md).
 
 ## Documentation
 
-- [Russian handbook](docs/README.md): start, routes, validation, security, modules, operations.
-- [English guide](docs/en/README.md) and [German guide](docs/de/README.md).
-- [Minimal APIs comparison and migration](docs/MINIMAL_APIS.md).
-- [Public API reference](docs/API.md).
-- [Architecture and async lifecycle](docs/ARCHITECTURE.md).
-- [Development and verification](docs/DEVELOPMENT.md).
-- [Current boundaries and roadmap](docs/ROADMAP.md).
+- [Russian handbook](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/README.md): start, routes, validation, security, modules, operations.
+- [English guide](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/en/README.md) and [German guide](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/de/README.md).
+- [Minimal APIs comparison and migration](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/MINIMAL_APIS.md).
+- [Public API reference](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/API.md).
+- [Architecture and async lifecycle](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/ARCHITECTURE.md).
+- [Development and verification](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/DEVELOPMENT.md).
+- [Current boundaries and roadmap](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/ROADMAP.md).
 
 All I/O-facing APIs are asynchronous and carry cancellation tokens. Configuration
 and CPU-only work remain synchronous. Microsoft.Data.Sqlite exposes async methods

@@ -29,4 +29,4 @@ advantage over Minimal APIs is claimed. Local accounts are not an OAuth/OIDC ide
 server and do not include MFA, password reset or email verification. Logout revokes refresh
 families; existing access tokens expire normally. Limits, caches, rooms and console tickets
 are process-local. Microsoft.Data.Sqlite executes database I/O synchronously internally.
-See the [complete boundaries](docs/ROADMAP.md) and [security guide](docs/SECURITY.md).
+See the [complete boundaries](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/ROADMAP.md) and [security guide](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/SECURITY.md).

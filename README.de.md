@@ -1,12 +1,12 @@
 # Trexon.Web
 
-[English](README.md) · [Русский](README.ru.md) · [Deutsch](README.de.md)
+[English](https://github.com/Trexoncorp/Trexon.Web/blob/main/README.md) · [Русский](https://github.com/Trexoncorp/Trexon.Web/blob/main/README.ru.md) · [Deutsch](https://github.com/Trexoncorp/Trexon.Web/blob/main/README.de.md)
 
 HTTP-APIs mit Attributen für C# / .NET 8+: explizite Routenklassen, asynchroner Start,
 automatische Validierung, Swagger UI unter `/docs` und optionale Module.
 Auf ASP.NET Core MVC und Kestrel aufgebaut. MIT-Lizenz.
 
-**Version `1.0.0`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.0) · [Änderungen](CHANGELOG.md). Ein Geschwindigkeitsvorteil gegenüber Minimal APIs wird nicht behauptet.
+**Version `1.0.0`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.0) · [Änderungen](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md). Ein Geschwindigkeitsvorteil gegenüber Minimal APIs wird nicht behauptet.
 
 ## Vollständiges erstes Beispiel
 
@@ -45,7 +45,7 @@ API-Schlüssel, sichere Cookie-Sitzungen mit CSRF-Schutz über HTTPS, eigene Val
 Fehlerzuordnung, Module, Caching, CORS, Ratenbegrenzung und Health Checks.
 Trexon.Logging, Trexon.Configuration und Trexon.Data sind eingebunden.
 
-Die [Schritt-für-Schritt-Anleitung](examples/Trexon.Web.Sample/README.md) enthält
+Die [Schritt-für-Schritt-Anleitung](https://github.com/Trexoncorp/Trexon.Web/blob/main/examples/Trexon.Web.Sample/README.md) enthält
 Aufrufe für jede Funktion. Ohne konfigurierten Schlüssel erzeugt das Beispiel einen
 JWT-Schlüssel nur für den aktuellen Prozess.
 
@@ -93,7 +93,7 @@ public sealed class EchoSocket : SocketHandler<string>
 Andere Nachrichtentypen verwenden automatisch JSON; `SocketHandler<TIn,TOut>` trennt
 Ein- und Ausgabe. Bestehende Authorize-Attribute und Validatoren gelten auch für Sockets.
 Im Beispiel zeigt `/chat` öffentliche und Cookie-geschützte Räume.
-[WebSocket-Leitfaden](docs/WEBSOCKETS.md).
+[WebSocket-Leitfaden](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/WEBSOCKETS.md).
 
 ## Einbindung und Prüfung
 
@@ -109,9 +109,9 @@ python3 scripts/smoke-sample.py
 ```
 
 Die ersten beiden Befehle erstellen ein unabhängiges Beispiel; die Prüfungen werden
-im Trexon.Web-Repository ausgeführt. [Deutscher Leitfaden](docs/de/README.md),
-[englischer Leitfaden](docs/en/README.md), [API-Referenz](docs/API.md),
-[Minimal-APIs-Vergleich](docs/MINIMAL_APIS.md), [Paket erstellen](docs/PUBLISHING.md).
+im Trexon.Web-Repository ausgeführt. [Deutscher Leitfaden](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/de/README.md),
+[englischer Leitfaden](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/en/README.md), [API-Referenz](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/API.md),
+[Minimal-APIs-Vergleich](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/MINIMAL_APIS.md), [Paket erstellen](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/PUBLISHING.md).
 
 I/O und Host-Lebenszyklus verwenden async APIs mit Abbruchtoken. Konfiguration und
 CPU-Arbeit bleiben synchron. Microsoft.Data.Sqlite führt seine async Aufrufe intern

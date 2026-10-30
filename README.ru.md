@@ -1,12 +1,12 @@
 # Trexon.Web
 
-[English](README.md) · [Русский](README.ru.md) · [Deutsch](README.de.md)
+[English](https://github.com/Trexoncorp/Trexon.Web/blob/main/README.md) · [Русский](https://github.com/Trexoncorp/Trexon.Web/blob/main/README.ru.md) · [Deutsch](https://github.com/Trexoncorp/Trexon.Web/blob/main/README.de.md)
 
 Библиотека для небольших HTTP-сервисов на C# / .NET 8+: маршруты через атрибуты,
 асинхронный запуск, автоматическая валидация, Swagger на `/docs` и готовые модули.
 Основана на ASP.NET Core MVC и Kestrel. Лицензия MIT.
 
-**Версия `1.0.0`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.0) · [История изменений](CHANGELOG.md). Преимущество в производительности над Minimal APIs не заявляется.
+**Версия `1.0.0`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.0) · [История изменений](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md). Преимущество в производительности над Minimal APIs не заявляется.
 
 ## Первое приложение целиком
 
@@ -38,10 +38,10 @@ public sealed record Greeting(string Name);
 dotnet run --project examples/Trexon.Web.Calculator
 ```
 
-[Весь код — один Program.cs](examples/Trexon.Web.Calculator/Program.cs): четыре операции,
+[Весь код — один Program.cs](https://github.com/Trexoncorp/Trexon.Web/blob/main/examples/Trexon.Web.Calculator/Program.cs): четыре операции,
 валидация, JSON и готовый Swagger на [127.0.0.1:5081/docs](http://127.0.0.1:5081/docs).
 Для запуска достаточно `await web.RunAsync(5081)` — как у `TrexonApp`, так и у
-собранного `WebApplication`. [Разбор и запросы](examples/Trexon.Web.Calculator/README.md).
+собранного `WebApplication`. [Разбор и запросы](https://github.com/Trexoncorp/Trexon.Web/blob/main/examples/Trexon.Web.Calculator/README.md).
 
 ## Запустить полный пример
 
@@ -59,7 +59,7 @@ dotnet run --project examples/Trexon.Web.Sample
 кеш, CORS, ограничение запросов, health checks. Используются
 `Trexon.Configuration`, `Trexon.Logging` и `Trexon.Data` из NuGet.
 
-[Пошаговый разбор примера](examples/Trexon.Web.Sample/README.md) содержит команды
+[Пошаговый разбор примера](https://github.com/Trexoncorp/Trexon.Web/blob/main/examples/Trexon.Web.Sample/README.md) содержит команды
 для каждого сценария, настройку администратора и HTTPS.
 Без настроенного секрета пример генерирует JWT-ключ на время процесса.
 
@@ -107,7 +107,7 @@ public sealed class EchoSocket : SocketHandler<string>
 Без ручного receive loop и работы с фрагментами. Другие типы сообщений автоматически
 используют JSON; `SocketHandler<TIn,TOut>` разделяет вход и выход. Авторизация и свои
 валидаторы работают тем же способом, что HTTP. В примере откройте `/chat` для рассылки
-между вкладками. [Руководство: WebSocket](docs/WEBSOCKETS.md).
+между вкладками. [Руководство: WebSocket](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/WEBSOCKETS.md).
 
 ## Подключить библиотеку
 
@@ -120,19 +120,19 @@ dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.0
 
 Замените `Hello/Program.cs` первым примером и запустите
 `dotnet run --project Hello -- --urls http://localhost:5080`.
-[Сборка локального NuGet-пакета](docs/PUBLISHING.md).
+[Сборка локального NuGet-пакета](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/PUBLISHING.md).
 
 ## Документация
 
-Начните с [руководства](docs/README.md). В нём есть:
+Начните с [руководства](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/README.md). В нём есть:
 
-- [Первый сервис](docs/GETTING_STARTED.md) и [маршруты](docs/ROUTING.md).
-- [Валидация](docs/VALIDATION.md) и [ошибки](docs/ERRORS.md).
-- [Аутентификация и авторизация](docs/SECURITY.md), [пользователи](docs/USERS.md).
-- [Свои и готовые модули](docs/MODULES.md).
-- [Сравнение с Minimal APIs](docs/MINIMAL_APIS.md).
-- [Архитектура и async](docs/ARCHITECTURE.md), [справочник API](docs/API.md).
-- [Проверки](docs/DEVELOPMENT.md), [эксплуатация](docs/OPERATIONS.md), [границы версии](docs/ROADMAP.md).
+- [Первый сервис](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/GETTING_STARTED.md) и [маршруты](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/ROUTING.md).
+- [Валидация](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/VALIDATION.md) и [ошибки](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/ERRORS.md).
+- [Аутентификация и авторизация](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/SECURITY.md), [пользователи](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/USERS.md).
+- [Свои и готовые модули](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/MODULES.md).
+- [Сравнение с Minimal APIs](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/MINIMAL_APIS.md).
+- [Архитектура и async](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/ARCHITECTURE.md), [справочник API](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/API.md).
+- [Проверки](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/DEVELOPMENT.md), [эксплуатация](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/OPERATIONS.md), [границы версии](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/ROADMAP.md).
 
 Операции ввода-вывода и запуск представлены async API с `CancellationToken`.
 Конфигурирование и вычисления остаются синхронными. SQLite-драйвер внутри выполняет

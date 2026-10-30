@@ -8,6 +8,7 @@ import urllib.parse
 from xml.sax.saxutils import escape
 
 ROOT = Path(__file__).resolve().parents[1]
+REPOSITORY_DOCS = 'https://github.com/Trexoncorp/Trexon.Web/blob/main/'
 LINK = re.compile(r'(?<!!)\[[^\]]*\]\(([^)]+)\)')
 SNIPPET = re.compile(r'<!--\s*verify:\s*([a-z0-9-]+)\s*-->\s*```csharp\s*\n(.*?)```', re.S)
 
@@ -19,10 +20,14 @@ def main():
         content = path.read_text(encoding='utf-8')
         for raw in LINK.findall(content):
             target = raw.strip().strip('<>')
+            base = path.parent
+            if target.startswith(REPOSITORY_DOCS):
+                target = target[len(REPOSITORY_DOCS):]
+                base = ROOT
             if not target or target.startswith('#') or urllib.parse.urlparse(target).scheme:
                 continue
             target = urllib.parse.unquote(target.split('#')[0])
-            if not (path.parent / target).exists():
+            if not (base / target).exists():
                 errors.append(f'{path.relative_to(ROOT)}: missing link {raw}')
         for name, code in SNIPPET.findall(content):
             if name in snippets and snippets[name] != code:
