@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.2 — 2026-10-30
+
+- Changed `RunAsync(port)` on both TrexonApp and WebApplication to listen on all
+  IPv4 interfaces (`0.0.0.0`) so Docker/Compose port mappings work without extra
+  host configuration. For loopback-only or HTTPS hosting, configure the host and
+  use `RunAsync()` without a port.
+
 ## Trexon.Templates 1.0.0 — 2026-10-30
 
 - Added the separate Trexon.Templates 1.0.0 package: `dotnet new trexon-api`

@@ -24,7 +24,7 @@ XML-комментарии всех публичных типов также в�
 | `Map(Action<WebApplication>)` | Пользовательские endpoints |
 | `Task<WebApplication> BuildAsync(CancellationToken)` | Сборка, проверка, async-инициализация |
 | `Task RunAsync(CancellationToken)` | Сборка, запуск и освобождение host |
-| `Task RunAsync(int port, CancellationToken = default)` | Сборка и запуск HTTP на `127.0.0.1:port` |
+| `Task RunAsync(int port, CancellationToken = default)` | Сборка и запуск HTTP на `0.0.0.0:port` (все IPv4-интерфейсы) |
 
 Все fluent-методы возвращают `TrexonApp`. После сборки регистрация запрещена; сервисы
 и options не следует изменять напрямую после BuildAsync. Повторная регистрация того же
@@ -37,7 +37,7 @@ route type идемпотентна; повторная регистрация m
 После `await using var web = await app.BuildAsync()` достаточно `await web.RunAsync(5080)`.
 
 Порт задаётся от 0 до 65535; `0` выбирает свободный порт ОС. Вызов с портом запускает
-HTTP на `127.0.0.1` и заменяет адреса из URL/Kestrel-конфигурации. Вызывать его нужно
+HTTP на всех IPv4-интерфейсах (`0.0.0.0`) и заменяет адреса из URL/Kestrel-конфигурации. Вызывать его нужно
 до старта хоста. Отмена токена и Ctrl+C завершают сервер штатно, ресурсы освобождаются.
 Обычный `RunAsync()` продолжает использовать конфигурацию хоста, в том числе HTTPS.
 

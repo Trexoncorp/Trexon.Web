@@ -6,7 +6,7 @@
 асинхронный запуск, автоматическая валидация, Swagger на `/docs` и готовые модули.
 Основана на ASP.NET Core MVC и Kestrel. Лицензия MIT.
 
-**Версия `1.0.1`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.1) · [История изменений](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md). Преимущество в производительности над Minimal APIs не заявляется.
+**Версия `1.0.2`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.2) · [История изменений](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md). Преимущество в производительности над Minimal APIs не заявляется.
 
 ## Стартовое приложение одной командой
 
@@ -139,7 +139,7 @@ public sealed class EchoSocket : SocketHandler<string>
 
 ```sh
 dotnet new web -n Hello
-dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.1
+dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.2
 ```
 
 Замените `Hello/Program.cs` первым примером и запустите

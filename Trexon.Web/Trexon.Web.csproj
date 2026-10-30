@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>true</IsPackable>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <PackageId>Trexon.Web</PackageId>
     <Title>Trexon.Web</Title>
     <Authors>Trexoncorp</Authors>
@@ -15,7 +15,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>Application and router URL prefixes, prefix-aware Swagger/auth/WebSocket console, and corrected mounted request links. https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md</PackageReleaseNotes>
+    <PackageReleaseNotes>RunAsync(port) now listens on all IPv4 interfaces, supporting Docker and Compose port mappings without extra host configuration. https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

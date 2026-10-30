@@ -35,8 +35,8 @@ public sealed class PortHostingTests
             await Task.WhenAny(started.Task, running).WaitAsync(TimeSpan.FromSeconds(10), Token);
             if (!started.Task.IsCompleted) await running;
             await started.Task.WaitAsync(TimeSpan.FromSeconds(10), Token);
-            Assert.Equal($"http://127.0.0.1:{port}", Assert.Single(web.Urls));
-            using var client = new HttpClient();
+            Assert.Equal($"http://0.0.0.0:{port}", Assert.Single(web.Urls));
+            using var client = new HttpClient(new HttpClientHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(10) };
             Assert.Equal("ready", await client.GetStringAsync($"http://127.0.0.1:{port}/ready", Token));
         }
         finally
@@ -71,10 +71,10 @@ public sealed class PortHostingTests
             var web = await started.Task.WaitAsync(TimeSpan.FromSeconds(10), Token);
             var address = new Uri(Assert.Single(web.Urls));
             Assert.Equal("http", address.Scheme);
-            Assert.Equal("127.0.0.1", address.Host);
+            Assert.Equal("0.0.0.0", address.Host);
             Assert.InRange(address.Port, 1, 65535);
             using var client = new HttpClient();
-            Assert.Equal("true", await client.GetStringAsync(new Uri(address, "/ready"), Token));
+            Assert.Equal("true", await client.GetStringAsync($"http://127.0.0.1:{address.Port}/ready", Token));
         }
         finally
         {

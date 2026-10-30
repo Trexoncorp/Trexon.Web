@@ -10,7 +10,7 @@ namespace Trexon.Web;
 /// <summary>Shortcuts for running a built application.</summary>
 public static class TrexonWebApplicationExtensions
 {
-    /// <summary>Runs HTTP on 127.0.0.1 at the supplied port, overriding configured listening addresses.</summary>
+    /// <summary>Runs HTTP on all IPv4 interfaces (0.0.0.0) at the supplied port, overriding configured listening addresses.</summary>
     /// <param name="app">An application that has been built but not started.</param>
     /// <param name="port">A port from 0 to 65535. Zero lets the operating system choose an available port.</param>
     /// <param name="cancellationToken">Requests graceful shutdown.</param>
@@ -23,7 +23,7 @@ public static class TrexonWebApplicationExtensions
         var addresses = app.Services.GetRequiredService<IServer>().Features.Get<IServerAddressesFeature>()
             ?? throw new InvalidOperationException("The configured server does not support listening addresses.");
         addresses.Addresses.Clear();
-        addresses.Addresses.Add("http://127.0.0.1:" + port.ToString(CultureInfo.InvariantCulture));
+        addresses.Addresses.Add("http://0.0.0.0:" + port.ToString(CultureInfo.InvariantCulture));
         // An explicit port also takes precedence over Kestrel Listen/Endpoints configuration.
         addresses.PreferHostingUrls = true;
         return ((IHost)app).RunAsync(cancellationToken);

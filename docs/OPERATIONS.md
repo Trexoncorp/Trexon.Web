@@ -38,6 +38,21 @@ TREXON_URL=https://localhost:7080 dotnet run --project examples/Trexon.Web.Sampl
 локальным сообщениям SDK. Для команды с `TREXON_URL=...` показан синтаксис POSIX shell;
 в PowerShell используйте `$env:TREXON_URL = "https://localhost:7080"`.
 
+## Docker и Compose
+
+`await app.RunAsync(8080)` и `await web.RunAsync(8080)` слушают HTTP на всех
+IPv4-интерфейсах (`0.0.0.0:8080`). Для доступа с хоста достаточно пробросить порт
+контейнера: `docker run --rm -p 5080:8080 <образ-приложения>`, либо указать
+`ports: ["5080:8080"]` у сервиса в Compose. Swagger будет доступен на
+`http://localhost:5080/docs`, WebSocket-консоль — на `/docs/ws/`.
+При общем префиксе приложения добавьте его к этим путям.
+
+Числовой порт явно заменяет адреса из конфигурации хоста. Чтобы слушать только
+loopback, задайте `app.Builder.WebHost.UseUrls("http://127.0.0.1:8080")` и вызовите
+`RunAsync()` без порта. Этот вариант также сохраняет настройки HTTPS.
+Полный пример использует именно запуск без порта: для контейнера задайте
+`TREXON_URL=http://0.0.0.0:8080`.
+
 ## Состояние
 
 SQLite-аккаунты и задачи примера хранятся в двух файлах. Выберите `TREXON_DATA_DIR`,

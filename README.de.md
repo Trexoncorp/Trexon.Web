@@ -6,7 +6,7 @@ HTTP-APIs mit Attributen für C# / .NET 8+: explizite Routenklassen, asynchroner
 automatische Validierung, Swagger UI unter `/docs` und optionale Module.
 Auf ASP.NET Core MVC und Kestrel aufgebaut. MIT-Lizenz.
 
-**Version `1.0.1`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.1) · [Änderungen](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md). Ein Geschwindigkeitsvorteil gegenüber Minimal APIs wird nicht behauptet.
+**Version `1.0.2`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.2) · [Änderungen](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md). Ein Geschwindigkeitsvorteil gegenüber Minimal APIs wird nicht behauptet.
 
 ## API-Projekt erstellen
 
@@ -116,7 +116,7 @@ Das stabile Paket installieren:
 
 ```sh
 dotnet new web -n Hello
-dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.1
+dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.2
 dotnet build Trexon.Web.slnx --configuration Release -warnaserror
 dotnet test --solution Trexon.Web.slnx --configuration Release --no-build --no-restore
 python3 scripts/check-docs.py

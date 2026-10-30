@@ -225,7 +225,7 @@ Cookie-Anmeldung ist zusätzlich mit `UseUsers()` + `UseCookies()` über HTTPS v
 Das kleine [Rechner-Beispiel](../../examples/Trexon.Web.Calculator/README.md) enthält die
 gesamte API in einer Program.cs. Start: `dotnet run --project examples/Trexon.Web.Calculator`.
 `await web.RunAsync(5081)` funktioniert mit TrexonApp und einer gebauten WebApplication
-und startet HTTP auf `127.0.0.1:5081`. Ohne Port bleibt die Host-Konfiguration einschließlich
+und startet HTTP auf allen IPv4-Schnittstellen (`0.0.0.0:5081`), auch für Docker/Compose. Ohne Port bleibt die Host-Konfiguration einschließlich
 HTTPS erhalten. Port 0 wählt einen freien Port.
 
 ## URL-Präfixe

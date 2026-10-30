@@ -8,7 +8,8 @@ var web = TrexonApp.Create(args, api => api.Title = "Calculator API");
 // Для префикса этого роутера замените следующую строку на web.AddRoutes<CalculatorRoutes>("/v1");
 // Тогда операции будут на /v1/calculator, а Swagger по-прежнему на /docs.
 web.AddRoutes<CalculatorRoutes>();
-// Указываем только порт: http://127.0.0.1:5081. Swagger уже доступен по /docs.
+// Указываем только порт: сервер слушает все IPv4-интерфейсы, в том числе в Docker.
+// Локально Swagger доступен по http://localhost:5081/docs.
 await web.RunAsync(5081);
 
 // Обычный C#-класс: Routes задаёт префикс, Tag — группу операций в Swagger.
