@@ -37,7 +37,7 @@ jobs:
         run: dotnet pack templates/Trexon.Templates.csproj --configuration Release --output artifacts -warnaserror
       - name: Verify installed starter template
         run: python scripts/smoke-template.py --package-dir artifacts --feed artifacts --sdk 8.0.100
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: packages-${{ matrix.os }}
           path: artifacts/*
