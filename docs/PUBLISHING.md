@@ -99,8 +99,10 @@ Package ID и публикацией новых версий существую�
 
 Релиз `v1.1.0` также содержит `Trexon.Web.Testing.1.1.0.nupkg` и snupkg. Он собирается
 и проверяется на обеих целевых платформах отдельно от production-пакета.
-Существующая OIDC-policy публикует только Trexon.Web. Первый выпуск нового Package ID
-Trexon.Web.Testing загружается владельцем в NuGet из проверенных GitHub Release assets;
-публикация символов выполняется тем же способом. Это не изменяет scope существующей policy.
+Workflow публикует оба nupkg и оба snupkg через Trusted Publishing. NuGet-policy
+для release.yml должна разрешать Trexon.Web и Trexon.Web.Testing. Для создания
+ещё не существующего Package ID нужны scope публикации новых пакетов и подходящий
+pattern; для следующих выпусков достаточно публикации новых версий этих двух пакетов.
+Ручная первая загрузка возможна, но не является обязательным ограничением NuGet.
 После индексации проверьте `python3 scripts/smoke-testing.py --version 1.1.0` без --source.
 Шаблон `templates-v1.1.0` выпускайте после доступности Web и Testing в публичном feed.
