@@ -2,7 +2,7 @@
 
 [Оглавление](README.md)
 
-Первый стабильный релиз — `1.0.0`; текущий патч — `1.0.2`. Версия NuGet-пакета берётся из тега
+Первый стабильный релиз — `1.0.0`; текущий релиз — `1.1.0`. Версия NuGet-пакета берётся из тега
 `vMAJOR.MINOR.PATCH[-PRERELEASE]` и передаётся в build/pack через `Version`. Опубликованные версии и теги не перемещаются.
 Контракт и ограничения выпуска описаны в [changelog](../CHANGELOG.md) и [границах версии](ROADMAP.md).
 
@@ -19,7 +19,7 @@ dotnet test --solution Trexon.Web.slnx --configuration Release --no-build --no-r
 python3 scripts/check-docs.py
 python3 scripts/smoke-sample.py
 dotnet pack Trexon.Web/Trexon.Web.csproj --configuration Release --no-build --output artifacts
-python3 scripts/smoke-package.py --source artifacts --version 1.0.2
+python3 scripts/smoke-package.py --source artifacts --version 1.1.0
 ```
 
 `scripts/smoke-package.py` создаёт новый web-проект без ProjectReference, восстанавливает
@@ -31,9 +31,9 @@ python3 scripts/smoke-package.py --source artifacts --version 1.0.2
 После обновления версии, README и CHANGELOG отправьте `main`, дождитесь CI, затем:
 
 ```sh
-bash scripts/release-version.sh v1.0.2
-git tag -a v1.0.2 -m "Trexon.Web 1.0.2"
-git push origin v1.0.2
+bash scripts/release-version.sh v1.1.0
+git tag -a v1.1.0 -m "Trexon.Web 1.1.0"
+git push origin v1.1.0
 ```
 
 `.github/workflows/release.yml` повторяет полную матрицу CI, проверяет формат тега
@@ -52,10 +52,10 @@ MIT license и зависимости. Примеры и тесты в паке�
 После окончания проверки и индексации NuGet проверьте установку именно из публичного feed:
 
 ```sh
-python3 scripts/smoke-package.py --version 1.0.2
+python3 scripts/smoke-package.py --version 1.1.0
 ```
 
-Ожидаемый итог: пакет `Trexon.Web/1.0.2` восстанавливается в чистый кеш, приложение
+Ожидаемый итог: пакет `Trexon.Web/1.1.0` восстанавливается в чистый кеш, приложение
 запускается и HTTP/Swagger/WebSocket console/Log.Info проходят smoke-проверки.
 Создание тега, загрузка файла и видимость страницы по отдельности ещё не подтверждают
 доступность версии в публичном restore feed.
@@ -94,3 +94,13 @@ Package ID и публикацией новых версий существую�
 Версии в csproj служат локальными значениями по умолчанию. Для релиза достаточно
 нового SemVer-тега на коммите из main: версия пакета берётся из тега для build, pack
 и smoke-проверок. Для шаблона используется префикс `templates-v`.
+
+## Пакет тестирования 1.1
+
+Релиз `v1.1.0` также содержит `Trexon.Web.Testing.1.1.0.nupkg` и snupkg. Он собирается
+и проверяется на обеих целевых платформах отдельно от production-пакета.
+Существующая OIDC-policy публикует только Trexon.Web. Первый выпуск нового Package ID
+Trexon.Web.Testing загружается владельцем в NuGet из проверенных GitHub Release assets;
+публикация символов выполняется тем же способом. Это не изменяет scope существующей policy.
+После индексации проверьте `python3 scripts/smoke-testing.py --version 1.1.0` без --source.
+Шаблон `templates-v1.1.0` выпускайте после доступности Web и Testing в публичном feed.

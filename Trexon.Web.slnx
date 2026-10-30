@@ -7,4 +7,5 @@
     <Project Path="tests/Trexon.Web.Tests/Trexon.Web.Tests.csproj" />
   </Folder>
   <Project Path="Trexon.Web/Trexon.Web.csproj" />
+  <Project Path="Trexon.Web.Testing/Trexon.Web.Testing.csproj" />
 </Solution>

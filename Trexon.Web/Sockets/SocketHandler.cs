@@ -32,12 +32,14 @@ public abstract class SocketHandler<TIn, TOut> : SocketHandler
     /// <summary>Runs once after disconnect and registry removal, before the connection's DI scope is disposed.</summary>
     public virtual ValueTask OnDisconnectedAsync(SocketConnection<TOut> connection, SocketDisconnect disconnect, CancellationToken cancellationToken) => ValueTask.CompletedTask;
 
+    internal virtual Type? MessageHandlerType => null;
+
     internal sealed override async ValueTask RunAsync(SocketPeer peer, SocketRoom room, SocketOptions options)
     {
         var services = peer.Context.RequestServices;
         var json = services.GetRequiredService<IOptions<JsonOptions>>().Value.JsonSerializerOptions;
         var connection = new SocketConnection<TOut>(peer, room, json);
-        var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(GetType());
+        var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(MessageHandlerType ?? GetType());
         var time = services.GetRequiredService<TimeProvider>();
         var window = time.GetTimestamp(); var count = 0;
         var buffer = ArrayPool<byte>.Shared.Rent(Math.Min(options.MaxMessageBytes, 4096));
@@ -76,10 +78,19 @@ public abstract class SocketHandler<TIn, TOut> : SocketHandler
                 catch (JsonException)
                 { await ErrorAsync(new("invalid_json", "Invalid JSON message")); continue; }
                 if (message == null) { await ErrorAsync(new("validation_error", "A non-null message is required")); continue; }
-                var errors = await ValidateAsync(message, peer);
-                if (errors.Count > 0) { await ErrorAsync(new("validation_error", "Message validation failed", errors)); continue; }
-                try { await OnMessageAsync(message, connection, peer.Token); }
-                catch (HttpError error) { await ErrorAsync(new("application_error", error.Message)); }
+                await using var messageScope = MessageHandlerType != null ? services.CreateAsyncScope() : (AsyncServiceScope?)null;
+                var originalServices = peer.Context.RequestServices;
+                try
+                {
+                    if (messageScope.HasValue) peer.Context.RequestServices = messageScope.Value.ServiceProvider;
+                    var errors = await ValidateAsync(message, peer);
+                    if (errors.Count > 0) { await ErrorAsync(new("validation_error", "Message validation failed", errors)); continue; }
+                    var handler = MessageHandlerType == null ? this
+                        : (SocketHandler<TIn, TOut>)peer.Context.RequestServices.GetRequiredService(MessageHandlerType);
+                    try { await handler.OnMessageAsync(message, connection, peer.Token); }
+                    catch (HttpError error) { await ErrorAsync(new("application_error", error.Message)); }
+                }
+                finally { peer.Context.RequestServices = originalServices; }
             }
         }
         catch (OperationCanceledException) when (peer.Token.IsCancellationRequested) { peer.Abort(); }

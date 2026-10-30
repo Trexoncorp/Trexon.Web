@@ -22,7 +22,7 @@ From the Trexon.Web repository, using SDK 10:
 
 ```sh
 dotnet pack templates/Trexon.Templates.csproj -c Release -o artifacts/templates -warnaserror
-dotnet new install ./artifacts/templates/Trexon.Templates.1.0.0.nupkg
+dotnet new install ./artifacts/templates/Trexon.Templates.1.1.0.nupkg
 dotnet new trexon-api -n MyApi
 cd MyApi
 dotnet run
@@ -73,3 +73,6 @@ After NuGet validation completes, verify the actual public install:
 ```sh
 python3 scripts/smoke-template.py --public --sdk 8.0.100
 ```
+
+Version 1.1.0 supports `dotnet new trexon-api -n Orders.Api --docker --tests`.
+See the [generated project guide](trexon-api/README.md#optional-docker-and-tests-11).

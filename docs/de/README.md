@@ -235,3 +235,10 @@ weiterer Aufruf mit Präfix ersetzt es; ein Aufruf ohne Argument behält es bei.
 `api.Prefix = "/v1"` verschiebt die ganze Anwendung einschließlich Swagger nach
 `/v1/docs`, WebSocket-Konsole nach `/v1/docs/ws`, Auth und Health.
 [Beispiel und Regeln](../ROUTING.md#префикс-роутера-и-всего-приложения).
+
+## Entwicklung in 1.1
+
+ICurrentUser, AddStartup<T>, frühe DI-/Policy-Prüfungen, Trexon.Web.Testing und
+SocketMessageHandler<T> vereinfachen die Entwicklung. Container und Tests erzeugen:
+`dotnet new trexon-api --docker --tests`.
+[Anleitung und Beispiele](DEVELOPER_EXPERIENCE.md).

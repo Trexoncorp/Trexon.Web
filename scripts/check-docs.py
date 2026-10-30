@@ -37,12 +37,13 @@ def main():
     if errors:
         raise SystemExit('\n'.join(errors))
     reference = escape(str(ROOT / 'Trexon.Web/Trexon.Web.csproj'), {'"': '&quot;'})
+    testing_reference = escape(str(ROOT / "Trexon.Web.Testing/Trexon.Web.Testing.csproj"), {'"': '&quot;'})
     for name, code in snippets.items():
         with tempfile.TemporaryDirectory(prefix='trexon-web-doc-') as directory:
             folder = Path(directory)
             (folder / 'Example.csproj').write_text(f'''<Project Sdk="Microsoft.NET.Sdk.Web">
 <PropertyGroup><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
-<ItemGroup><ProjectReference Include="{reference}" /></ItemGroup></Project>''')
+<ItemGroup><ProjectReference Include="{reference}" /><ProjectReference Include="{testing_reference}" /></ItemGroup></Project>''')
             (folder / 'Program.cs').write_text(code)
             # Run from the repository so its global.json selects the supported SDK/test runner.
             result = subprocess.run(['dotnet', 'build', str(folder / 'Example.csproj'), '--configuration', 'Release', '-warnaserror', '--nologo'],

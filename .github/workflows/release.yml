@@ -42,6 +42,8 @@ jobs:
       - run: dotnet restore Trexon.Web.slnx
       - run: dotnet build Trexon.Web.slnx --configuration Release --no-restore -p:ContinuousIntegrationBuild=true -p:Version="$PACKAGE_VERSION" -warnaserror
       - run: dotnet pack Trexon.Web/Trexon.Web.csproj --configuration Release --no-build --no-restore -p:ContinuousIntegrationBuild=true --output artifacts/release -p:Version="$PACKAGE_VERSION" -warnaserror
+      - run: dotnet pack Trexon.Web.Testing/Trexon.Web.Testing.csproj --configuration Release --no-build --no-restore -p:ContinuousIntegrationBuild=true --output artifacts/release -p:Version="$PACKAGE_VERSION" -warnaserror
+      - run: python3 scripts/smoke-testing.py --source artifacts/release --version "$PACKAGE_VERSION"
       - run: python3 scripts/smoke-package.py --source artifacts/release --version "$PACKAGE_VERSION"
       - name: Prepare release notes and checksums
         run: |
@@ -107,11 +109,15 @@ jobs:
       - name: Publish package
         env:
           NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
-        run: dotnet nuget push "artifacts/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --no-symbols --skip-duplicate
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          dotnet nuget push "artifacts/Trexon.Web.$version.nupkg" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --no-symbols --skip-duplicate
       - name: Publish symbols
         env:
           NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
-        run: dotnet nuget push "artifacts/*.snupkg" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --skip-duplicate
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          dotnet nuget push "artifacts/Trexon.Web.$version.snupkg" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --skip-duplicate
 
   verify-publishing:
     name: Verify Trusted Publishing (no upload)

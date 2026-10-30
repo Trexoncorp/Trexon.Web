@@ -20,7 +20,7 @@ public sealed class SecurityAndUsersTests
     [Fact]
     public async Task Jwt_distinguishes_anonymous_forbidden_and_authorized_requests()
     {
-        await using var host = await TestHost.Start(app => app.UseJwt(TestHost.Jwt).AddRoutes<AccessRoutes>());
+        await using var host = await TestHost.Start(app => app.UseJwt(TestHost.Jwt).AddAccessTestRoutes());
         Assert.Equal(HttpStatusCode.Unauthorized, (await host.Client.GetAsync("/access/admin", Token)).StatusCode);
         var issuer = host.App.Services.GetRequiredService<ITokenIssuer>();
         host.Client.DefaultRequestHeaders.Authorization = new("Bearer", issuer.Issue("user", roles: ["User"]).Token);
@@ -39,7 +39,7 @@ public sealed class SecurityAndUsersTests
     [InlineData("trexon-tests", "trexon-tests", false, true)]
     public async Task Jwt_rejects_wrong_issuer_audience_expiry_and_signature(string issuer, string audience, bool expired, bool wrongKey)
     {
-        await using var host = await TestHost.Start(app => app.UseJwt(TestHost.Jwt).AddRoutes<AccessRoutes>());
+        await using var host = await TestHost.Start(app => app.UseJwt(TestHost.Jwt).AddAccessTestRoutes());
         var now = DateTime.UtcNow;
         var jwt = new JwtSecurityToken(issuer, audience, [new("sub", "subject"), new("role", "Admin")], now.AddHours(-1),
             expired ? now.AddMinutes(-10) : now.AddMinutes(10),
@@ -52,7 +52,7 @@ public sealed class SecurityAndUsersTests
     {
         await using var host = await TestHost.Start(app =>
         {
-            app.UseJwt(TestHost.Jwt).AddRoutes<AccessRoutes>();
+            app.UseJwt(TestHost.Jwt).AddAccessTestRoutes();
             app.Services.AddAuthorization(o => o.AddPolicy("reports", p => p.RequireClaim("permission", "reports:read")));
         });
         var issuer = host.App.Services.GetRequiredService<ITokenIssuer>();
@@ -64,7 +64,7 @@ public sealed class SecurityAndUsersTests
     [Fact]
     public async Task Api_keys_and_jwt_can_coexist_with_explicit_schemes()
     {
-        await using var host = await TestHost.Start(app => app.UseJwt(TestHost.Jwt).UseApiKeys<TestApiKeys>().AddRoutes<AccessRoutes>());
+        await using var host = await TestHost.Start(app => app.UseJwt(TestHost.Jwt).UseApiKeys<TestApiKeys>().AddAccessTestRoutes());
         host.Client.DefaultRequestHeaders.Add("X-API-Key", "valid-test-key");
         Assert.Equal(HttpStatusCode.OK, (await host.Client.GetAsync("/access/key", Token)).StatusCode);
         Assert.Equal(HttpStatusCode.OK, (await host.Client.GetAsync("/access/any", Token)).StatusCode);
@@ -75,7 +75,7 @@ public sealed class SecurityAndUsersTests
     [Fact]
     public async Task Swagger_security_matches_anonymous_and_named_authentication()
     {
-        await using var host = await TestHost.Start(app => app.UseJwt(TestHost.Jwt).UseApiKeys<TestApiKeys>().AddRoutes<AccessRoutes>());
+        await using var host = await TestHost.Start(app => app.UseJwt(TestHost.Jwt).UseApiKeys<TestApiKeys>().AddAccessTestRoutes());
         var doc = await host.Json("/openapi.json");
         Assert.NotNull(doc["components"]!["securitySchemes"]!["Bearer"]);
         Assert.NotNull(doc["components"]!["securitySchemes"]!["ApiKey"]);
@@ -149,7 +149,7 @@ public sealed class SecurityAndUsersTests
     [Fact]
     public async Task Cookie_login_requires_csrf_and_creates_a_secure_http_only_session()
     {
-        await using var host = await TestHost.Start(app => app.UseCookies().AddRoutes<AccessRoutes>(), users: true);
+        await using var host = await TestHost.Start(app => app.UseCookies().AddAccessTestRoutes(), users: true);
         await host.RegisterLogin();
         var payload = new { username = "tester", password = "long-test-password-123" };
         Assert.Equal(HttpStatusCode.BadRequest, (await host.Client.PostAsJsonAsync("/auth/cookie/login", payload, Token)).StatusCode);
@@ -223,4 +223,13 @@ public sealed class TestApiKeys : IApiKeyValidator
 {
     public ValueTask<ClaimsPrincipal?> ValidateAsync(string key, CancellationToken token) => ValueTask.FromResult(key == "valid-test-key"
         ? new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "integration"), new Claim(ClaimTypes.Name, "integration")], AuthSchemes.ApiKey)) : null);
+}
+
+internal static class AccessTestRegistration
+{
+    internal static TrexonApp AddAccessTestRoutes(this TrexonApp app)
+    {
+        app.Services.AddAuthorization(options => options.AddPolicy("reports", policy => policy.RequireClaim("permission", "reports:read")));
+        return app.AddRoutes<AccessRoutes>();
+    }
 }

@@ -6,8 +6,17 @@ Attribute-first HTTP APIs for C# / .NET 8+. Explicit route classes, async startu
 automatic validation, Swagger UI at `/docs`, and optional service modules.
 Built on ASP.NET Core MVC and Kestrel. MIT license.
 
-**Version `1.0.2`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.2) · [Release notes](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md).
+**Version `1.1.0`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.1.0) · [Release notes](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md).
 No throughput advantage over Minimal APIs is claimed.
+
+## New in 1.1
+
+`ICurrentUser` exposes the authenticated identity through DI. `AddStartup<T>()`
+awaits scoped initialization before listening. Startup validates DI graphs and named
+policies. `SocketMessageHandler<T>` gives every message its own async scope.
+Install the separate `Trexon.Web.Testing` package for in-process HTTP/WebSocket tests
+and dependency overrides. The `trexon-api` template now accepts `--docker --tests`.
+[Complete 1.1 guide](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/DEVELOPER_EXPERIENCE.md).
 
 ## Generate a starter API
 
@@ -143,7 +152,7 @@ Install the stable package:
 
 ```sh
 dotnet new web -n Hello
-dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.2
+dotnet add Hello/Hello.csproj package Trexon.Web --version 1.1.0
 ```
 
 Replace `Hello/Program.cs` with the first example. Run with

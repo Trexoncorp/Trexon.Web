@@ -61,7 +61,10 @@ public sealed class WebSocketModule : ITrexonModule
              options.AllowedOrigins.Any(value => SocketOptions.TryOrigin(value, out var trusted) && string.Equals(origin, trusted, StringComparison.OrdinalIgnoreCase)));
         if (!allowed) { await Problems.WriteAsync(context, 403, "WebSocket origin is not allowed"); return; }
         // Resolve first, so DI/configuration failures can still return an ordinary HTTP problem response.
-        var handler = (SocketHandler)context.RequestServices.GetRequiredService(endpoint.HandlerType);
+        var messageScoped = endpoint.HandlerType;
+        while (messageScoped != null && (!messageScoped.IsGenericType || messageScoped.GetGenericTypeDefinition() != typeof(SocketMessageHandler<,>))) messageScoped = messageScoped.BaseType;
+        var handler = messageScoped == null ? (SocketHandler)context.RequestServices.GetRequiredService(endpoint.HandlerType)
+            : (SocketHandler)Activator.CreateInstance(typeof(MessageScopedSocket<,>).MakeGenericType(endpoint.InputType, endpoint.OutputType), endpoint.HandlerType)!;
         using var socket = await context.WebSockets.AcceptWebSocketAsync(context.Features.Get<ConsoleSocketProtocol>()?.Value);
         using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted, stopping);
         await handler.RunAsync(new SocketPeer(socket, context, options, lifetime.Token), endpoint.Room, options);

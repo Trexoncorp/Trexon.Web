@@ -117,3 +117,6 @@ RequestLoggingModule, ServiceModuleExtensions. [Modules](MODULES.md) содер�
 Leave(group), SendAsync(message, token), BroadcastAsync(message, group, token), CloseAsync(reason, token).
 Сетевая работа асинхронна; членство в группах — локальные синхронные операции.
 Схемы и lifecycle подробно описаны в [WebSockets](WEBSOCKETS.md).
+
+В версии 1.1 также доступны ICurrentUser, AddStartup<T>, TrexonTest и SocketMessageHandler.
+[Полное руководство с примерами](DEVELOPER_EXPERIENCE.md).

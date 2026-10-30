@@ -12,6 +12,7 @@ using Trexon.Data;
 using Trexon.Logging;
 using Trexon.Web;
 using Trexon.Web.Modules;
+using Trexon.Web.Hosting;
 using Trexon.Web.Sample;
 using Trexon.Web.Security;
 using Trexon.Web.Sockets;
@@ -73,6 +74,10 @@ app.UseJwt(new JwtSettings("trexon-sample", "trexon-sample", signingKey))
     .AddRoutes<DiagnosticsRoutes>()
     .AddSocket<ChatSocket>()
     .AddSocket<PrivateChatSocket>()
+    // У этого обработчика отдельный DI scope на каждое сообщение.
+    .AddSocket<TaskFeedSocket>()
+    // Scoped startup получает зависимости через конструктор и завершается до открытия порта.
+    .AddStartup<AdminSeed>()
     // Origin для WebSocket проверяется отдельно от CORS. Свой origin разрешён по умолчанию;
     // здесь дополнительно разрешаем origin отдельного фронтенда.
     .UseWebSockets(options => options.AllowedOrigins = [settings.FrontendOrigin])
@@ -92,9 +97,7 @@ app.Map(web =>
 // BuildAsync собирает конвейер и ожидает InitializeAsync модулей, включая подготовку БД.
 // await using обеспечивает асинхронное освобождение приложения и его сервисов.
 await using var web = await app.BuildAsync();
-// Отдельный явный шаг до приёма запросов: при заданном пароле создаём/проверяем admin.
-// Эти действия завершаются последовательно; фоновые задания не запускаются.
-await AdminSeed.InitializeAsync(web.Services);
+// AdminSeed уже выполнен внутри BuildAsync после инициализации модулей.
 Log.Info("Docs: {DocsUrl}", settings.Url.TrimEnd('/') + "/docs");
 if (string.IsNullOrWhiteSpace(settings.JwtKey)) Log.Warning("JWT key is ephemeral; set TREXON_JWT_KEY to preserve access-token validity across restarts.");
 // Запускаем веб-сервер и ждём остановки (например, Ctrl+C). Обработчики используют async I/O;
@@ -298,13 +301,11 @@ namespace Trexon.Web.Sample
     // для всех методов класса. Право на конкретную запись проверяет TaskService.
     // Зависимости конструктора предоставляет DI; наследовать ControllerBase не требуется.
     [Routes("/tasks"), Tag("Tasks"), Authorize]
-    public sealed class TaskRoutes(TaskService tasks, IHttpContextAccessor accessor)
+    public sealed class TaskRoutes(TaskService tasks, ICurrentUser user)
     {
-        // JWT хранит ID в sub, cookie/API key могут использовать NameIdentifier.
+        // ICurrentUser читает проверенный ID из JWT/cookie/API key; для анонимного запроса Id даёт 401.
         // Не принимаем owner из запроса: клиент не должен выбирать чужой аккаунт.
-        private string Owner => accessor.HttpContext!.User.FindFirstValue("sub")
-            ?? accessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)
-            ?? throw new HttpError(401, "An account identity is required.");
+        private string Owner => user.Id;
 
         // GET /tasks?completed=false&skip=0&take=20.
         // Простые параметры читаются из query; значения по умолчанию делают их необязательными.
@@ -417,16 +418,13 @@ namespace Trexon.Web.Sample
 
     // Явная начальная настройка администратора, которую Точка входа выше ждёт до старта сервера.
     // Публичная регистрация не принимает роли: повышенные права назначает серверный код.
-    public static class AdminSeed
+    public sealed class AdminSeed(SampleSettings settings, IUserAccounts users, IUserStore store) : ITrexonStartup
     {
-        public static async Task InitializeAsync(IServiceProvider services, CancellationToken cancellationToken = default)
+        public async ValueTask InitializeAsync(CancellationToken cancellationToken = default)
         {
-            var settings = services.GetRequiredService<SampleSettings>();
             // Без настройки пароля не создаём аккаунт с предсказуемыми учётными данными.
             if (string.IsNullOrWhiteSpace(settings.AdminPassword)) return;
             // IUserAccounts выполняет регистрацию/проверку пароля, IUserStore хранит аккаунты и роли.
-            var users = services.GetRequiredService<IUserAccounts>();
-            var store = services.GetRequiredService<IUserStore>();
             var existing = await store.FindByNameAsync("admin", cancellationToken);
             if (existing == null)
             {
@@ -504,6 +502,19 @@ namespace Trexon.Web.Sample
     // Native-клиент может задать Authorization: Bearer или X-API-Key при подключении.
     [Socket("/ws/private/{room}"), Authorize, Summary("Authenticated chat", Description = "Identity is checked before upgrade. Use username/password, Bearer tokens or API keys in /docs/ws; custom browser clients can use HTTPS cookies.")]
     public sealed class PrivateChatSocket(TimeProvider time) : ChatSocket(time);
+
+    // Каждый текст "list" создаёт новый scoped-обработчик, получает задачи своего пользователя
+    // и освобождает зависимости после отправки. Подключение и principal сохраняются между сообщениями.
+    // Lifecycle-callbacks доступны у обычного SocketHandler; здесь нужен только OnMessageAsync.
+    [Socket("/ws/tasks"), Authorize, Summary("List your tasks with per-message DI")]
+    public sealed class TaskFeedSocket(TaskService tasks, ICurrentUser user) : SocketMessageHandler<string, TaskView[]>
+    {
+        public override async ValueTask OnMessageAsync(string message, SocketConnection<TaskView[]> connection, CancellationToken token)
+        {
+            if (message != "list") throw new HttpError(400, "Send list to read your tasks.");
+            await connection.SendAsync(await tasks.List(user.Id, null, 0, 20, token), token);
+        }
+    }
 
     // 7. Встроенный браузерный клиент: строка отдаётся GET /chat без отдельных файлов.
     // Raw string сохраняет HTML/JS как есть; ниже подробно описан каждый обработчик.

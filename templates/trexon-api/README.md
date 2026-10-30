@@ -63,3 +63,14 @@ before changing an existing database.
 
 For hosting, HTTPS, authentication and persistent storage, see
 [Trexon.Web operations](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/OPERATIONS.md).
+
+## Optional Docker and tests (1.1)
+
+Generate with `dotnet new trexon-api -n Orders.Api --docker --tests`.
+Both flags are independent and disabled by default.
+Run tests with `dotnet test tests/Orders.Api.Tests.csproj`.
+Run containers with `docker compose up --build`, then open http://localhost:5080/docs.
+Compose persists data and logs in named volumes; deleting volumes deletes those files.
+APP_HOST defaults to 127.0.0.1 for local use; Compose sets it to 0.0.0.0.
+NotesModule is shared by production and tests. SchemaStartup is initialized through
+scoped DI before the listener starts. Tests use temporary databases and TestServer.

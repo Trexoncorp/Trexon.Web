@@ -261,3 +261,10 @@ prefixes a socket handler. Repeating a registration with a prefix replaces it; a
 registration preserves it. `api.Prefix = "/v1"` mounts the whole application including
 docs at `/v1/docs`, sockets, auth and health. Empty prefixes preserve existing URLs.
 [Complete example and rules](../ROUTING.md#префикс-роутера-и-всего-приложения).
+
+## 1.1 developer experience
+
+ICurrentUser, AddStartup<T>, early DI/policy checks, Trexon.Web.Testing and
+SocketMessageHandler<T> are available. Generate containers and integration tests
+with `dotnet new trexon-api --docker --tests`.
+[Complete guide and examples](DEVELOPER_EXPERIENCE.md).

@@ -25,7 +25,7 @@ def check(condition, message):
 
 def run(*args, cwd, env):
     result = subprocess.run(args, cwd=cwd, env=env, capture_output=True,
-                            text=True, encoding="utf-8", errors="replace", timeout=180)
+                            text=True, encoding="utf-8", errors="replace", timeout=600)
     if result.returncode:
         raise RuntimeError(f"Command failed: {args}\n{result.stdout}\n{result.stderr}")
     return result.stdout
@@ -161,13 +161,21 @@ def main():
     source.add_argument("--public", action="store_true", help="Install Trexon.Templates from NuGet.org in a clean environment")
     parser.add_argument("--version", default=ET.parse(PROJECT).findtext("PropertyGroup/Version"),
                         help="Template version to verify (defaults to the project version)")
+    parser.add_argument("--feed", type=Path, help="Additional local feed for unreleased Web/Testing dependencies")
     parser.add_argument("--sdk", help="SDK version for template consumers (latest feature band allowed)")
     args = parser.parse_args()
     with tempfile.TemporaryDirectory(prefix="trexon-template-") as temporary:
         directory = Path(temporary)
         env = {key: value for key, value in os.environ.items() if not key.startswith("APP_")}
-        env.update(DOTNET_CLI_HOME=str(directory / "cli"), DOTNET_NOLOGO="1",
+        env.update(NUGET_PACKAGES=str(directory / "nuget-packages"), DOTNET_CLI_HOME=str(directory / "cli"), DOTNET_NOLOGO="1",
                    DOTNET_CLI_TELEMETRY_OPTOUT="1", DOTNET_SKIP_FIRST_TIME_EXPERIENCE="1")
+        if args.feed:
+            from xml.sax.saxutils import escape
+            (directory / "NuGet.Config").write_text(
+                '<configuration><packageSources><clear />'
+                '<add key="local" value="' + escape(str(args.feed.resolve()), {'"': '&quot;'}) + '" />'
+                '<add key="nuget.org" value="https://api.nuget.org/v3/index.json" />'
+                '</packageSources></configuration>', encoding="utf-8")
         if args.public:
             env.update(NUGET_PACKAGES=str(directory / "nuget-packages"),
                        NUGET_HTTP_CACHE_PATH=str(directory / "nuget-http-cache"))
@@ -195,7 +203,8 @@ def main():
             expected = {".template.config/template.json", ".template.config/dotnetcli.host.json",
                         ".env.example", ".gitignore", "README.md",
                         "TrexonApi.csproj", "TrexonApi.http", "Program.cs", "AppSettings.cs",
-                        "Note.cs", "NotesRoutes.cs", "NotesHealthCheck.cs"}
+                        "Note.cs", "NotesRoutes.cs", "NotesHealthCheck.cs", "NotesModule.cs",
+                        "Dockerfile", "compose.yaml", ".dockerignore", "tests/TrexonApi.Tests.csproj", "tests/NotesTests.cs"}
             check(files == expected, f"Unexpected template payload: {files ^ expected}")
         if args.sdk:
             (directory / "global.json").write_text(json.dumps({
@@ -208,6 +217,7 @@ def main():
             # Normal user path: preferNameDirectory + restore post-action.
             run("dotnet", "new", "trexon-api", "-n", "Orders.Api", cwd=directory, env=env)
             project = directory / "Orders.Api"
+            check(not (project / "Dockerfile").exists() and not (project / "tests").exists(), "Optional files emitted without flags")
             check((project / "obj/project.assets.json").exists(), "Restore post-action did not run")
             check((project / ".env.example").exists() and (project / ".gitignore").exists(), "Missing dotfiles")
             check(not (project / ".template.config").exists(), "Template metadata leaked into project")
@@ -218,6 +228,15 @@ def main():
             run("dotnet", "build", "-c", "Release", "-warnaserror", cwd=project, env=env)
             print("Generated project restored and built; checking HTTP and restart", flush=True)
             verify_app(project, env)
+
+            # Both opt-ins produce a deployable service and real in-process tests.
+            options = directory / "Options.Api"
+            run("dotnet", "new", "trexon-api", "-n", "Options.Api", "--docker", "--tests", "--no-restore", cwd=directory, env=env)
+            for file in ["Dockerfile", "compose.yaml", ".dockerignore", "tests/Options.Api.Tests.csproj"]:
+                check((options / file).exists(), f"Missing optional file: {file}")
+            check("Options.Api.dll" in (options / "Dockerfile").read_text(), "Docker entry point not renamed")
+            run("dotnet", "test", "tests/Options.Api.Tests.csproj", "-c", "Release", cwd=options, env=env)
+            print("Generated --docker --tests application: integration test passed", flush=True)
 
             # Punctuation must become a valid namespace; output paths can contain spaces.
             named = directory / "custom output"

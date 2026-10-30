@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0 — 2026-10-30
+
+- Added scoped ICurrentUser for authenticated IDs, names and roles.
+- Added AddStartup<T>/ITrexonStartup: ordered async initialization with constructor DI, cancellation and awaited scope disposal.
+- Validate DI graphs/lifetimes, required action services and named authorization policies before accepting requests.
+- Added SocketMessageHandler<T> and SocketMessageHandler<TIn,TOut> with a fresh async scope shared by validators and handler per message. Existing connection handlers retain their lifecycle.
+- Added separate Trexon.Web.Testing 1.1.0 for in-process HTTP/WebSocket tests and dependency overrides on .NET 8/10.
+- Released Trexon.Templates 1.1.0: optional --docker/--tests, persistent Compose volumes, non-root container, shared NotesModule and scoped database startup.
+- Updated the complete one-file sample and compiled guides with current-user DI, scoped startup and message-scoped WebSockets.
+
 ## 1.0.2 — 2026-10-30
 
 - Changed `RunAsync(port)` on both TrexonApp and WebApplication to listen on all

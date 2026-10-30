@@ -2,8 +2,8 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <PackageId>Trexon.Templates</PackageId>
-    <Version>1.0.0</Version>
-    <PackageReleaseNotes>First release: dotnet new trexon-api generates a notes API with Swagger, SQLite, validated CRUD, typed settings and structured logs.</PackageReleaseNotes>
+    <Version>1.1.0</Version>
+    <PackageReleaseNotes>Optional Docker/Compose and integration tests, reusable module and scoped async startup, Trexon.Web 1.1.0.</PackageReleaseNotes>
     <Authors>Trexoncorp</Authors>
     <Description>Starter HTTP APIs with Trexon.Web, Configuration, Logging and SQLite persistence.</Description>
     <PackageTags>dotnet-new;templates;trexon;webapi</PackageTags>
@@ -21,7 +21,7 @@
     <NoWarn>$(NoWarn);NU5128</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="trexon-api/*.cs;trexon-api/*.csproj;trexon-api/*.http;trexon-api/README.md;trexon-api/.gitignore;trexon-api/.env.example;trexon-api/.template.config/template.json;trexon-api/.template.config/dotnetcli.host.json" />
+    <Content Include="trexon-api/*.cs;trexon-api/*.csproj;trexon-api/*.http;trexon-api/README.md;trexon-api/.gitignore;trexon-api/.env.example;trexon-api/Dockerfile;trexon-api/compose.yaml;trexon-api/.dockerignore;trexon-api/tests/*.cs;trexon-api/tests/*.csproj;trexon-api/.template.config/template.json;trexon-api/.template.config/dotnetcli.host.json" />
     <None Include="README.md" Pack="true" PackagePath="/" />
     <None Include="../LICENSE" Pack="true" PackagePath="/" />
   </ItemGroup>

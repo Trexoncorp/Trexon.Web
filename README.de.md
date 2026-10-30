@@ -6,7 +6,16 @@ HTTP-APIs mit Attributen für C# / .NET 8+: explizite Routenklassen, asynchroner
 automatische Validierung, Swagger UI unter `/docs` und optionale Module.
 Auf ASP.NET Core MVC und Kestrel aufgebaut. MIT-Lizenz.
 
-**Version `1.0.2`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.2) · [Änderungen](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md). Ein Geschwindigkeitsvorteil gegenüber Minimal APIs wird nicht behauptet.
+**Version `1.1.0`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.1.0) · [Änderungen](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md). Ein Geschwindigkeitsvorteil gegenüber Minimal APIs wird nicht behauptet.
+
+## Neu in 1.1
+
+`ICurrentUser` stellt die authentifizierte Identität über DI bereit. `AddStartup<T>()`
+initialisiert scoped Dienste vor dem Serverstart. DI und benannte Policies werden
+beim Start geprüft. `SocketMessageHandler<T>` erstellt einen async Scope pro Nachricht.
+`Trexon.Web.Testing` bietet HTTP/WebSocket-Tests ohne TCP-Port und mit DI-Overrides.
+Das Template unterstützt `--docker --tests`.
+[Anleitung und Beispiele](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/DEVELOPER_EXPERIENCE.md).
 
 ## API-Projekt erstellen
 
@@ -116,7 +125,7 @@ Das stabile Paket installieren:
 
 ```sh
 dotnet new web -n Hello
-dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.2
+dotnet add Hello/Hello.csproj package Trexon.Web --version 1.1.0
 dotnet build Trexon.Web.slnx --configuration Release -warnaserror
 dotnet test --solution Trexon.Web.slnx --configuration Release --no-build --no-restore
 python3 scripts/check-docs.py

@@ -1,4 +1,4 @@
-# Границы версии 1.0.1
+# Границы версии 1.1.0
 
 [Оглавление](README.md)
 
@@ -12,7 +12,9 @@ CORS, fixed-window rate limit, public output cache, health checks, request logs,
 типизированные WebSocket endpoints с комнатами и валидацией.
 Полный пример соединяет Trexon.Configuration, Trexon.Logging и Trexon.Data.
 Отдельный пакет [Trexon.Templates](../templates/README.md) создаёт стартовый API
-командой `dotnet new trexon-api`.
+командой `dotnet new trexon-api`, включая опции `--docker --tests`.
+В 1.1 добавлены ICurrentUser, scoped startup, ранняя диагностика DI/policies,
+message scopes WebSocket и отдельный тестовый клиент Trexon.Web.Testing.
 
 ## Чего версия не обещает
 

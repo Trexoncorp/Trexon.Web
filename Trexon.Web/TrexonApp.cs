@@ -27,6 +27,7 @@ public sealed class TrexonApp
     private readonly HashSet<Type> _validators = [];
     internal readonly List<SecurityDescription> SecuritySchemes = [];
     private readonly ErrorOptions _errors = new();
+    private readonly List<Type> _startupHandlers = [];
     private bool _built;
     internal bool HasCors, HasRateLimiter, HasOutputCache;
     internal bool HasLocalJwt;
@@ -39,12 +40,14 @@ public sealed class TrexonApp
     private TrexonApp(WebApplicationBuilder builder, Action<ApiOptions>? configure)
     {
         Builder = builder;
+        Builder.Host.UseDefaultServiceProvider(options => { options.ValidateOnBuild = true; options.ValidateScopes = true; });
         configure?.Invoke(Options);
         Services.AddSingleton(Options);
         Services.AddSingleton(_errors);
         Services.TryAddSingleton<TimeProvider>(TimeProvider.System);
         Services.TryAddSingleton<IExceptionResponder, DefaultExceptionResponder>();
         Services.AddHttpContextAccessor();
+        Services.TryAddScoped<Trexon.Web.Security.ICurrentUser, Trexon.Web.Security.CurrentUser>();
         Services.AddEndpointsApiExplorer();
         Services.AddAuthentication();
         Services.AddAuthorization();
@@ -134,6 +137,17 @@ public sealed class TrexonApp
         module.Configure(this);
         return this;
     }
+    /// <summary>Registers a scoped startup handler. Handlers run sequentially after module initialization, before listening.</summary>
+    public TrexonApp AddStartup<T>() where T : class, Trexon.Web.Hosting.ITrexonStartup
+    {
+        EnsureMutable();
+        if (!_startupHandlers.Contains(typeof(T)))
+        {
+            Services.AddScoped<T>();
+            _startupHandlers.Add(typeof(T));
+        }
+        return this;
+    }
     /// <summary>Adds a scoped async validator for a handler argument type.</summary>
     public TrexonApp AddValidator<T, TValidator>() where TValidator : class, IRequestValidator<T>
     {
@@ -182,11 +196,18 @@ public sealed class TrexonApp
                 if (SecuritySchemes.Any(s => s.Id == "Cookies")) return "Cookies";
                 return SecuritySchemes[0].Id;
             });
-        var app = Builder.Build();
-        var consoleTickets = Options.EnableDocs && Sockets != null
-            ? new SocketConsoleTickets(app.Services.GetRequiredService<TimeProvider>(), SecuritySchemes, ApiKeyHeader) : null;
+        // Validate dependency graphs without invoking request-dependent constructors.
+        foreach (var route in _routes) Services.TryAddTransient(route);
+        WebApplication app;
+        try { app = Builder.Build(); }
+        catch (AggregateException error)
+        {
+            throw new InvalidOperationException("Startup DI validation failed. Register missing services via app.Services and check singleton/scoped lifetimes. " + error.Message, error);
+        }
         try
         {
+            var consoleTickets = Options.EnableDocs && Sockets != null
+                ? new SocketConsoleTickets(app.Services.GetRequiredService<TimeProvider>(), SecuritySchemes, ApiKeyHeader) : null;
             RequestLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Trexon.Web.Requests");
             app.Use(async (context, next) =>
             {
@@ -282,6 +303,18 @@ public sealed class TrexonApp
                 cancellationToken.ThrowIfCancellationRequested();
                 await module.InitializeAsync(app.Services, cancellationToken);
             }
+            foreach (var handlerType in _startupHandlers)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await using var scope = app.Services.CreateAsyncScope();
+                try
+                {
+                    var handler = (Trexon.Web.Hosting.ITrexonStartup)scope.ServiceProvider.GetRequiredService(handlerType);
+                    await handler.InitializeAsync(cancellationToken);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested) { throw; }
+                catch (Exception error) { throw new InvalidOperationException($"Startup handler {handlerType.Name} failed.", error); }
+            }
             return app;
         }
         catch { await app.DisposeAsync(); throw; }
@@ -289,6 +322,7 @@ public sealed class TrexonApp
     private static async Task ValidateEndpointsAsync(WebApplication app)
     {
         var schemes = (await app.Services.GetRequiredService<Microsoft.AspNetCore.Authentication.IAuthenticationSchemeProvider>().GetAllSchemesAsync()).ToArray();
+        var policies = app.Services.GetRequiredService<Microsoft.AspNetCore.Authorization.IAuthorizationPolicyProvider>();
         var keys = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach (var endpoint in ((IEndpointRouteBuilder)app).DataSources.SelectMany(s => s.Endpoints).OfType<RouteEndpoint>())
         {
@@ -301,6 +335,15 @@ public sealed class TrexonApp
                 if (!keys.TryAdd(key, endpoint.DisplayName ?? key))
                     throw new InvalidOperationException($"Duplicate route {key}: {keys[key]} and {endpoint.DisplayName}.");
             }
+            foreach (var authorization in endpoint.Metadata.GetOrderedMetadata<Microsoft.AspNetCore.Authorization.IAuthorizeData>())
+                if (!string.IsNullOrEmpty(authorization.Policy) && await policies.GetPolicyAsync(authorization.Policy) == null)
+                    throw new InvalidOperationException($"Route {endpoint.DisplayName} requires missing authorization policy '{authorization.Policy}'. Register it via app.Services.AddAuthorization.");
+            if (endpoint.Metadata.GetMetadata<Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor>() is { } action)
+                foreach (var parameter in action.Parameters.Where(parameter => parameter.BindingInfo?.BindingSource == Microsoft.AspNetCore.Mvc.ModelBinding.BindingSource.Services))
+                    if (parameter is Microsoft.AspNetCore.Mvc.Controllers.ControllerParameterDescriptor descriptor &&
+                        (descriptor.ParameterInfo.HasDefaultValue || new System.Reflection.NullabilityInfoContext().Create(descriptor.ParameterInfo).ReadState == System.Reflection.NullabilityState.Nullable)) continue;
+                    else if (!app.Services.GetRequiredService<IServiceProviderIsService>().IsService(parameter.ParameterType))
+                        throw new InvalidOperationException($"Route {endpoint.DisplayName} requires service {parameter.ParameterType.Name}. Register it via app.Services.");
             if (endpoint.Metadata.GetOrderedMetadata<Microsoft.AspNetCore.Authorization.IAuthorizeData>().Count > 0 &&
                 endpoint.Metadata.GetMetadata<Microsoft.AspNetCore.Authorization.IAllowAnonymous>() == null &&
                 schemes.Length == 0)

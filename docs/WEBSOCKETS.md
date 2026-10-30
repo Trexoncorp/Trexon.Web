@@ -281,3 +281,6 @@ public/private комнаты на том же контракте.
 Общий `api.Prefix = "/service"` дополнительно переносит всё приложение: HTTP, auth,
 сокеты и консоль `/service/docs/ws`. Авторизация и ticket-механизм продолжают работать.
 [Полный пример и правила изменения префиксов](ROUTING.md#префикс-роутера-и-всего-приложения).
+
+В версии 1.1 также доступны ICurrentUser, AddStartup<T>, TrexonTest и SocketMessageHandler.
+[Полное руководство с примерами](DEVELOPER_EXPERIENCE.md).

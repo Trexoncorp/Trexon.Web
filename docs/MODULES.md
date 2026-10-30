@@ -107,3 +107,6 @@ HealthChecksModule использует `Services.AddHealthChecks()`: добав
 достаточно `AddRoutes<T>()`; не создавайте модуль только ради структуры папок.
 
 Для WebSocket-модулей см. [пример и контракты](WEBSOCKETS.md): отдельный receive loop и ручное управление фрагментами не нужны.
+
+В версии 1.1 также доступны ICurrentUser, AddStartup<T>, TrexonTest и SocketMessageHandler.
+[Полное руководство с примерами](DEVELOPER_EXPERIENCE.md).

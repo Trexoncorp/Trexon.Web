@@ -28,3 +28,5 @@ Trexon.Web собирает повторяющуюся настройку неб
 
 Начать с практики: `dotnet run --project examples/Trexon.Web.Sample`, затем открыть
 `http://localhost:5080/docs`. Полная проверка: `python3 scripts/smoke-sample.py` после Release-сборки.
+
+- [Разработка в 1.1: тестовый клиент, текущий пользователь, scoped startup, диагностика и Docker](DEVELOPER_EXPERIENCE.md).
