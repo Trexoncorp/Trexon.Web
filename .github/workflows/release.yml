@@ -3,6 +3,7 @@ name: Release
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -13,6 +14,7 @@ concurrency:
 
 jobs:
   verify:
+    if: github.event_name == 'push'
     uses: ./.github/workflows/ci.yml
 
   package:
@@ -51,7 +53,7 @@ jobs:
           ' CHANGELOG.md > artifacts/release/RELEASE-NOTES.md
           test -s artifacts/release/RELEASE-NOTES.md
           cd artifacts/release
-          sha256sum *.nupkg *.snupkg > SHA256SUMS
+          sha256sum ./*.nupkg ./*.snupkg > SHA256SUMS
       - uses: actions/upload-artifact@v4
         with:
           name: release-packages
@@ -78,3 +80,48 @@ jobs:
         run: |
           gh release create "$RELEASE_TAG" --verify-tag --title "Trexon.Web ${RELEASE_TAG#v}" \
             --notes-file artifacts/RELEASE-NOTES.md artifacts/*.nupkg artifacts/*.snupkg artifacts/SHA256SUMS
+
+  publish-nuget:
+    name: Publish to NuGet with Trusted Publishing
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: nuget
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-packages
+          path: artifacts
+      - name: NuGet login with OIDC
+        id: login
+        uses: NuGet/login@ebc737b6fc418a6ca0073cf116ec8dc156d8b81e # v1
+        with:
+          user: ${{ vars.NUGET_USER || 'anton_aleynichenko' }}
+      - name: Publish package
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: dotnet nuget push "artifacts/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --no-symbols --skip-duplicate
+      - name: Publish symbols
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: dotnet nuget push "artifacts/*.snupkg" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --skip-duplicate
+
+  verify-publishing:
+    name: Verify Trusted Publishing (no upload)
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: nuget
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: NuGet/login@ebc737b6fc418a6ca0073cf116ec8dc156d8b81e # v1
+        with:
+          user: ${{ vars.NUGET_USER || 'anton_aleynichenko' }}

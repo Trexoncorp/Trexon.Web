@@ -3,6 +3,7 @@ name: Template release
 on:
   push:
     tags: ['templates-v*']
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -13,6 +14,7 @@ concurrency:
 
 jobs:
   verify:
+    if: github.event_name == 'push'
     uses: ./.github/workflows/ci.yml
 
   release:
@@ -44,7 +46,12 @@ jobs:
       - name: Pack template
         run: dotnet pack templates/Trexon.Templates.csproj -c Release -o artifacts/templates -p:ContinuousIntegrationBuild=true -warnaserror
       - name: Verify release package
-        run: python scripts/smoke-template.py --package artifacts/templates/Trexon.Templates.1.0.0.nupkg --sdk 8.0.100
+        run: python scripts/smoke-template.py --package-dir artifacts/templates --sdk 8.0.100
+      - uses: actions/upload-artifact@v4
+        with:
+          name: template-release-package
+          path: artifacts/templates/*.nupkg
+          if-no-files-found: error
       - name: Publish verified template assets
         env:
           GH_TOKEN: ${{ github.token }}
@@ -52,7 +59,48 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           cd artifacts/templates
-          sha256sum *.nupkg > SHA256SUMS
+          sha256sum ./*.nupkg > SHA256SUMS
           gh release create "$RELEASE_TAG" --verify-tag --title "Trexon.Templates ${RELEASE_TAG#templates-v}" \
             --notes 'Starter notes API with Swagger, SQLite, validated CRUD, typed settings and structured logs. Install: dotnet new install Trexon.Templates. Create: dotnet new trexon-api -n MyApi.' \
-            *.nupkg SHA256SUMS
+            ./*.nupkg ./SHA256SUMS
+
+  publish-nuget:
+    name: Publish to NuGet with Trusted Publishing
+    needs: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: nuget
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - uses: actions/download-artifact@v4
+        with:
+          name: template-release-package
+          path: artifacts
+      - name: NuGet login with OIDC
+        id: login
+        uses: NuGet/login@ebc737b6fc418a6ca0073cf116ec8dc156d8b81e # v1
+        with:
+          user: ${{ vars.NUGET_USER || 'anton_aleynichenko' }}
+      - name: Publish package
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: dotnet nuget push "artifacts/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key "$NUGET_API_KEY" --no-symbols --skip-duplicate
+
+  verify-publishing:
+    name: Verify Trusted Publishing (no upload)
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: nuget
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: NuGet/login@ebc737b6fc418a6ca0073cf116ec8dc156d8b81e # v1
+        with:
+          user: ${{ vars.NUGET_USER || 'anton_aleynichenko' }}

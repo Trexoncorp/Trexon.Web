@@ -157,6 +157,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     source = parser.add_mutually_exclusive_group()
     source.add_argument("--package", type=Path, help="Verify an already packed template nupkg")
+    source.add_argument("--package-dir", type=Path, help="Directory containing the package for the template project version")
     source.add_argument("--public", action="store_true", help="Install Trexon.Templates from NuGet.org in a clean environment")
     parser.add_argument("--sdk", help="SDK version for template consumers (latest feature band allowed)")
     args = parser.parse_args()
@@ -177,6 +178,9 @@ def main():
             package = directory / f"Trexon.Templates.{version}.nupkg"
             with urllib.request.urlopen(url, timeout=30) as response:
                 package.write_bytes(response.read())
+        elif args.package_dir:
+            version = ET.parse(PROJECT).findtext("PropertyGroup/Version")
+            package = (args.package_dir / f"Trexon.Templates.{version}.nupkg").resolve(strict=True)
         elif args.package:
             package = args.package.resolve(strict=True)
         else:

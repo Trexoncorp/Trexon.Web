@@ -44,11 +44,10 @@ MIT license и зависимости. Примеры и тесты в паке�
 
 ## NuGet.org
 
-Пакет публикуется через [Upload](https://www.nuget.org/packages/manage/upload) из
-аккаунта владельца. Загрузите **nupkg из успешного GitHub Release**, проверьте
-Package ID `Trexon.Web`, версию и зависимости, затем подтвердите публикацию.
-Отдельно загрузите snupkg из того же релиза. Этот способ не требует API key или
-создания дополнительных прав доступа для workflow.
+После успешной упаковки workflow выполняет `NuGet/login` через OIDC и публикует
+пакет и символы в NuGet. Нужна policy для `Trexoncorp/Trexon.Web`, workflow
+`release.yml`, environment `nuget`, package scope `Trexon.Web`.
+Постоянный API key и ручная загрузка файла не требуются.
 
 После окончания проверки и индексации NuGet проверьте установку именно из публичного feed:
 
@@ -65,10 +64,29 @@ python3 scripts/smoke-package.py --version 1.0.1
 
 Шаблон `dotnet new trexon-api` выпускается отдельным пакетом `Trexon.Templates`
 со своей версией. CI сохраняет его nupkg и проверяет создание приложения;
-этот release workflow публикует только Trexon.Web. Инструкции по сборке,
+`release.yml` публикует Trexon.Web, а `template-release.yml` — Trexon.Templates. Инструкции по сборке,
 локальной установке и распространению — в [руководстве шаблона](../templates/README.md).
 
 NuGet-пакет предназначен для ASP.NET Core-приложений на .NET 8 и новее; в CI
 проверяются .NET 8 и .NET 10. Для изменений публичного API используется SemVer:
 совместимые исправления — patch, новые совместимые возможности — minor,
 несовместимые изменения — major. Для разработки в этом репозитории используется SDK 10.
+
+## Автоматическая публикация через Trusted Publishing
+
+Релизный workflow публикует проверенный nupkg и символы в NuGet через OIDC.
+Постоянный API key не нужен. Логин — repository variable `NUGET_USER` или
+`anton_aleynichenko` по умолчанию. Публикация использует environment `nuget`.
+
+В NuGet policy укажите owner репозитория `Trexoncorp`, имя этого репозитория,
+точное имя workflow и environment `nuget`; scope ограничьте соответствующим
+Package ID и публикацией новых версий существующего пакета.
+
+Для проверки настройки без загрузки пакета запустите workflow вручную на `main`:
+выполнится только обмен OIDC-токена. Публикация выполняется исключительно по тегу.
+Опубликованные теги не перемещайте; перед новым тегом обновите версию и документацию.
+
+Для Trexon.Web используются `release.yml` и теги `vVERSION`.
+Для Trexon.Templates — отдельная policy с `template-release.yml`, scope
+`Trexon.Templates` и тегами `templates-vVERSION`. Версии шаблона и Web независимы;
+имя nupkg шаблона вычисляется из его csproj.

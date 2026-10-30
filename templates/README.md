@@ -59,12 +59,15 @@ Share a verified nupkg directly or install from NuGet.org:
 dotnet new install Trexon.Templates
 ```
 
-Building the package does not publish it. The Web release workflow continues to
-release only Trexon.Web; template publishing is a separate operation.
+Building locally does not publish the package. Push a `templates-vVERSION` tag
+to run the template release workflow; `vVERSION` tags release Trexon.Web separately.
 
-Before publishing, pack from a committed source revision, run the smoke check and
-publish that exact nupkg through NuGet.org Upload. Keep the package and its SHA256
-checksum in a GitHub release tagged `templates-vVERSION`; do not move published tags.
+The workflow verifies the tag against the template project version and main ancestry,
+checks the package, creates a GitHub release with SHA256 checksums, and publishes the
+verified nupkg through NuGet Trusted Publishing. Configure a policy for
+`Trexoncorp/Trexon.Web`, workflow `template-release.yml`, environment `nuget`, scoped
+to `Trexon.Templates`. No long-lived API key is needed. Do not move published tags.
+Run the workflow manually on `main` to verify OIDC authorization without uploading a package.
 After NuGet validation completes, verify the actual public install:
 
 ```sh
