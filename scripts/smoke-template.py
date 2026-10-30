@@ -159,6 +159,8 @@ def main():
     source.add_argument("--package", type=Path, help="Verify an already packed template nupkg")
     source.add_argument("--package-dir", type=Path, help="Directory containing the package for the template project version")
     source.add_argument("--public", action="store_true", help="Install Trexon.Templates from NuGet.org in a clean environment")
+    parser.add_argument("--version", default=ET.parse(PROJECT).findtext("PropertyGroup/Version"),
+                        help="Template version to verify (defaults to the project version)")
     parser.add_argument("--sdk", help="SDK version for template consumers (latest feature band allowed)")
     args = parser.parse_args()
     with tempfile.TemporaryDirectory(prefix="trexon-template-") as temporary:
@@ -173,20 +175,20 @@ def main():
                 '<configuration><packageSources><clear />'
                 '<add key="nuget.org" value="https://api.nuget.org/v3/index.json" />'
                 '</packageSources></configuration>', encoding="utf-8")
-            version = ET.parse(PROJECT).findtext("PropertyGroup/Version")
+            version = args.version
             url = f"https://api.nuget.org/v3-flatcontainer/trexon.templates/{version}/trexon.templates.{version}.nupkg"
             package = directory / f"Trexon.Templates.{version}.nupkg"
             with urllib.request.urlopen(url, timeout=30) as response:
                 package.write_bytes(response.read())
         elif args.package_dir:
-            version = ET.parse(PROJECT).findtext("PropertyGroup/Version")
+            version = args.version
             package = (args.package_dir / f"Trexon.Templates.{version}.nupkg").resolve(strict=True)
         elif args.package:
             package = args.package.resolve(strict=True)
         else:
             run("dotnet", "pack", str(PROJECT), "-c", "Release", "-o", str(directory / "packages"),
-                "-warnaserror", cwd=ROOT, env=env)
-            version = ET.parse(PROJECT).findtext("PropertyGroup/Version")
+                "-warnaserror", f"-p:Version={args.version}", cwd=ROOT, env=env)
+            version = args.version
             package = directory / f"packages/Trexon.Templates.{version}.nupkg"
         with zipfile.ZipFile(package) as archive:
             files = {name.removeprefix("content/trexon-api/") for name in archive.namelist() if name.startswith("content/")}
@@ -199,7 +201,7 @@ def main():
             (directory / "global.json").write_text(json.dumps({
                 "sdk": {"version": args.sdk, "rollForward": "latestFeature", "allowPrerelease": False}
             }), encoding="utf-8")
-        run("dotnet", "new", "install", "Trexon.Templates" if args.public else str(package),
+        run("dotnet", "new", "install", f"Trexon.Templates::{args.version}" if args.public else str(package),
             cwd=directory, env=env)
         print("Template package installed in isolated CLI home", flush=True)
         try:

@@ -32,8 +32,8 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          version="$(python3 -c 'import xml.etree.ElementTree as E; print(E.parse("templates/Trexon.Templates.csproj").findtext("PropertyGroup/Version"))')"
-          test "$RELEASE_TAG" = "templates-v$version"
+          version="$(bash scripts/release-version.sh "v${RELEASE_TAG#templates-v}")"
+          echo "PACKAGE_VERSION=$version" >> "$GITHUB_ENV"
           git merge-base --is-ancestor HEAD origin/main
       - uses: actions/setup-dotnet@v4
         with:
@@ -44,9 +44,9 @@ jobs:
         with:
           python-version: '3.x'
       - name: Pack template
-        run: dotnet pack templates/Trexon.Templates.csproj -c Release -o artifacts/templates -p:ContinuousIntegrationBuild=true -warnaserror
+        run: dotnet pack templates/Trexon.Templates.csproj -c Release -o artifacts/templates -p:ContinuousIntegrationBuild=true -p:Version="$PACKAGE_VERSION" -warnaserror
       - name: Verify release package
-        run: python scripts/smoke-template.py --package-dir artifacts/templates --sdk 8.0.100
+        run: python scripts/smoke-template.py --package-dir artifacts/templates --version "$PACKAGE_VERSION" --sdk 8.0.100
       - uses: actions/upload-artifact@v4
         with:
           name: template-release-package

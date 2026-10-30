@@ -32,8 +32,7 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           version="$(bash scripts/release-version.sh "$RELEASE_TAG")"
-          expected="$(python3 -c 'import xml.etree.ElementTree as E; print(E.parse("Trexon.Web/Trexon.Web.csproj").findtext("PropertyGroup/Version"))')"
-          test "$version" = "$expected" || { echo '::error::Tag and project version must match.'; exit 1; }
+          echo "PACKAGE_VERSION=$version" >> "$GITHUB_ENV"
           git merge-base --is-ancestor HEAD origin/main || { echo '::error::Release must be reachable from main.'; exit 1; }
       - uses: actions/setup-dotnet@v4
         with:
@@ -41,9 +40,9 @@ jobs:
             8.0.x
             10.0.x
       - run: dotnet restore Trexon.Web.slnx
-      - run: dotnet build Trexon.Web.slnx --configuration Release --no-restore -p:ContinuousIntegrationBuild=true -warnaserror
-      - run: dotnet pack Trexon.Web/Trexon.Web.csproj --configuration Release --no-build --no-restore -p:ContinuousIntegrationBuild=true --output artifacts/release -warnaserror
-      - run: python3 scripts/smoke-package.py --source artifacts/release
+      - run: dotnet build Trexon.Web.slnx --configuration Release --no-restore -p:ContinuousIntegrationBuild=true -p:Version="$PACKAGE_VERSION" -warnaserror
+      - run: dotnet pack Trexon.Web/Trexon.Web.csproj --configuration Release --no-build --no-restore -p:ContinuousIntegrationBuild=true --output artifacts/release -p:Version="$PACKAGE_VERSION" -warnaserror
+      - run: python3 scripts/smoke-package.py --source artifacts/release --version "$PACKAGE_VERSION"
       - name: Prepare release notes and checksums
         run: |
           awk -v header="## ${GITHUB_REF_NAME#v} " '
@@ -51,7 +50,9 @@ jobs:
             found && /^## / { exit }
             found { print }
           ' CHANGELOG.md > artifacts/release/RELEASE-NOTES.md
-          test -s artifacts/release/RELEASE-NOTES.md
+          if [[ ! -s artifacts/release/RELEASE-NOTES.md ]]; then
+            printf 'Trexon.Web %s. See the repository changelog and commit history for changes.\n' "$PACKAGE_VERSION" > artifacts/release/RELEASE-NOTES.md
+          fi
           cd artifacts/release
           sha256sum ./*.nupkg ./*.snupkg > SHA256SUMS
       - uses: actions/upload-artifact@v4

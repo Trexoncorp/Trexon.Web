@@ -62,7 +62,7 @@ dotnet new install Trexon.Templates
 Building locally does not publish the package. Push a `templates-vVERSION` tag
 to run the template release workflow; `vVERSION` tags release Trexon.Web separately.
 
-The workflow verifies the tag against the template project version and main ancestry,
+The workflow validates the SemVer tag and main ancestry, uses the tag version for packing,
 checks the package, creates a GitHub release with SHA256 checksums, and publishes the
 verified nupkg through NuGet Trusted Publishing. Configure a policy for
 `Trexoncorp/Trexon.Web`, workflow `template-release.yml`, environment `nuget`, scoped
