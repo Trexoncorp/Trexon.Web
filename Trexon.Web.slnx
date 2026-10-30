@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/examples/">
+    <Project Path="examples/Trexon.Web.Calculator/Trexon.Web.Calculator.csproj" />
     <Project Path="examples/Trexon.Web.Sample/Trexon.Web.Sample.csproj" />
   </Folder>
   <Folder Name="/tests/">

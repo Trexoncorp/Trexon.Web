@@ -220,3 +220,9 @@ Benutzername/Passwort, Bearer-Token und API-Schlüssel werden über kurzlebige, 
 Verbindungstickets unterstützt. Schema-, Rollen- und Policy-Prüfungen bleiben erhalten.
 Cookie-Anmeldung ist zusätzlich mit `UseUsers()` + `UseCookies()` über HTTPS verfügbar.
 `DocsPath` und PathBase werden berücksichtigt; `EnableDocs = false` deaktiviert die Konsole.
+
+Das kleine [Rechner-Beispiel](../../examples/Trexon.Web.Calculator/README.md) enthält die
+gesamte API in einer Program.cs. Start: `dotnet run --project examples/Trexon.Web.Calculator`.
+`await web.RunAsync(5081)` funktioniert mit TrexonApp und einer gebauten WebApplication
+und startet HTTP auf `127.0.0.1:5081`. Ohne Port bleibt die Host-Konfiguration einschließlich
+HTTPS erhalten. Port 0 wählt einen freien Port.

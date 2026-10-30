@@ -5,6 +5,7 @@
 ## Структура
 
 - `Trexon.Web/` — библиотека net8.0.
+- `examples/Trexon.Web.Calculator/` — маленький API в одном файле, используется в HTTP-тестах.
 - `examples/Trexon.Web.Sample/` — полный сервис задач и интеграции Trexon.
 - `tests/Trexon.Web.Tests/` — HTTP и storage/lifecycle-тесты, net8.0 и net10.0.
 - `docs/` — русское руководство; `docs/en`, `docs/de` — самостоятельные краткие руководства.
@@ -31,7 +32,8 @@ SDK 10 использует Microsoft.Testing.Platform, поэтому нуже�
 Интеграционные тесты проверяют binding, рекурсивную DataAnnotations-валидацию, свои правила,
 формат ошибок, Swagger, явное подключение routes, конфликты, модули, JWT issuer/audience/
 expiry/signature, roles/policies, API keys, пароли, refresh reuse/logout, cookie CSRF,
-rate limit, caching, CORS, health, request logging, async startup/cancellation/disposal,
+rate limit, caching, CORS, health, request logging, async startup/cancellation/disposal, запуск с портом через реальный Kestrel,
+операции/валидацию/OpenAPI одностраничного примера калькулятора,
 сохранность SQLite и конкурентную ротацию. WebSocket-тесты покрывают текст/JSON,
 фрагменты, UTF-8, nested/custom validation, комнаты, параллельные рассылки, lifecycle/disposal,
 JWT/roles/cookies, Origin, лимиты и shutdown. Есть проверка native ClientWebSocket через реальный Kestrel.

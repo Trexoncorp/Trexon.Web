@@ -37,6 +37,32 @@ curl http://localhost:5080/hello/Ada
 владения хостом используйте `await using var web = await app.BuildAsync(token)`;
 затем `await web.RunAsync(token)`. Построить один экземпляр `TrexonApp` можно один раз.
 
+## Запуск с указанием порта
+
+У `TrexonApp` можно сразу вызвать `await app.RunAsync(5080)`.
+Если требуется сначала собрать приложение, поддерживается тот же вызов у `WebApplication`:
+
+<!-- verify: port-run -->
+```csharp
+using Trexon.Web;
+
+var app = TrexonApp.Create(args);
+await using var web = await app.BuildAsync();
+await web.RunAsync(5080);
+```
+
+Откроется HTTP на `127.0.0.1:5080`; Swagger доступен по `/docs`. Явный порт имеет
+приоритет над адресами URL/Kestrel-конфигурации. Для запуска по настроенным адресам,
+включая HTTPS, используйте вариант без порта. Вторым аргументом можно передать токен
+отмены: `await web.RunAsync(5080, cancellationToken)`.
+
+[Калькулятор в одном файле](../examples/Trexon.Web.Calculator/README.md) показывает полный
+маленький API: четыре операции, проверку параметров и готовый Swagger. Запуск:
+
+```sh
+dotnet run --project examples/Trexon.Web.Calculator
+```
+
 ## Настройки документации
 
 <!-- verify: docs-options -->

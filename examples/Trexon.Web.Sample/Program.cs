@@ -100,6 +100,8 @@ logger.Info("Docs: {DocsUrl}", settings.Url.TrimEnd('/') + "/docs");
 if (string.IsNullOrWhiteSpace(settings.JwtKey)) logger.Warning("JWT key is ephemeral; set TREXON_JWT_KEY to preserve access-token validity across restarts.");
 // Запускаем веб-сервер и ждём остановки (например, Ctrl+C). Обработчики используют async I/O;
 // сам ASP.NET Core при этом может обслуживать несколько подключений одновременно.
+// Для явного HTTP-порта доступно также: await web.RunAsync(5080).
+// Здесь оставляем запуск по TREXON_URL, чтобы сохранить настройку HTTPS из окружения.
 await web.RunAsync();
 
 namespace Trexon.Web.Sample

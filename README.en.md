@@ -33,6 +33,17 @@ public sealed record Greeting(string Name);
 `/openapi.json` describes the same routes and models.
 No base controller, assembly scanning, or explicit Swagger setup is required.
 
+## Small example: calculator
+
+```sh
+dotnet run --project examples/Trexon.Web.Calculator
+```
+
+[One Program.cs](examples/Trexon.Web.Calculator/Program.cs) demonstrates four operations,
+parameter validation, JSON responses and Swagger at `http://127.0.0.1:5081/docs`.
+Use `await web.RunAsync(5081)` with either `TrexonApp` or a built `WebApplication` to
+choose the HTTP port. [Walkthrough](examples/Trexon.Web.Calculator/README.md).
+
 ## Try the complete service
 
 From this repository, with SDK 10 and the ASP.NET Core 8 runtime installed:

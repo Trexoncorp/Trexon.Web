@@ -33,6 +33,17 @@ public sealed record Greeting(string Name);
 `/openapi.json` содержит схему. Класс не требует наследования; подключаются только
 явно зарегистрированные маршруты.
 
+## Простой пример: калькулятор
+
+```sh
+dotnet run --project examples/Trexon.Web.Calculator
+```
+
+[Весь код — один Program.cs](examples/Trexon.Web.Calculator/Program.cs): четыре операции,
+валидация, JSON и готовый Swagger на [127.0.0.1:5081/docs](http://127.0.0.1:5081/docs).
+Для запуска достаточно `await web.RunAsync(5081)` — как у `TrexonApp`, так и у
+собранного `WebApplication`. [Разбор и запросы](examples/Trexon.Web.Calculator/README.md).
+
 ## Запустить полный пример
 
 Нужны SDK 10 и ASP.NET Core Runtime 8. Из корня репозитория:

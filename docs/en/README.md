@@ -244,3 +244,9 @@ Username/password login, Bearer tokens and API keys are supported through short-
 single-use connection tickets. The original endpoint still validates schemes, roles and policies.
 Cookie sign-in is also available with `UseUsers()` + `UseCookies()` over HTTPS. The page follows
 `DocsPath` and reverse-proxy PathBase, and is disabled with `EnableDocs = false`.
+
+A small [calculator example](../../examples/Trexon.Web.Calculator/README.md) keeps the
+whole API in one Program.cs. Run it with `dotnet run --project examples/Trexon.Web.Calculator`.
+Both `TrexonApp` and a built `WebApplication` accept `await web.RunAsync(5081)`: HTTP listens
+on `127.0.0.1:5081`, overriding configured listening addresses. The no-port overload retains
+normal host configuration, including HTTPS. Port zero selects an available port.

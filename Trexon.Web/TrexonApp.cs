@@ -289,4 +289,11 @@ public sealed class TrexonApp
         await using var app = await BuildAsync(cancellationToken);
         await app.RunAsync(cancellationToken);
     }
+    /// <summary>Builds and runs HTTP on 127.0.0.1 at the supplied port, then disposes the host. Zero selects an available port.</summary>
+    public async Task RunAsync(int port, CancellationToken cancellationToken = default)
+    {
+        TrexonWebApplicationExtensions.ValidatePort(port);
+        await using var app = await BuildAsync(cancellationToken);
+        await app.RunAsync(port, cancellationToken);
+    }
 }
