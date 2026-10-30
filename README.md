@@ -100,7 +100,8 @@ use JSON automatically; `SocketHandler<TIn,TOut>` supports distinct contracts. E
 describes groups, limits and lifecycle. Open `/chat` in the full sample to try public or
 cookie-authenticated private rooms. The built-in **WebSocket console** at `/docs/ws` lets
 you choose endpoints, fill route parameters, generate JSON examples and inspect messages
-and errors. It is linked from Swagger and disabled with `EnableDocs = false`.
+and errors. Username/password, Bearer tokens and API keys work directly in the console
+through single-use connection tickets; cookie sessions are also supported. It is linked from Swagger and disabled with `EnableDocs = false`.
 
 ## Reference from another project
 

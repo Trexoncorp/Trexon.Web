@@ -6,7 +6,8 @@ namespace Trexon.Web.Internal;
 // The console uses the same OpenAPI socket contracts as Swagger, with no second registry.
 internal static class WebSocketConsole
 {
-    internal static void Map(WebApplication app, ApiOptions options, string? loginPath, bool cookies)
+    internal static void Map(WebApplication app, ApiOptions options, string? loginPath,
+        List<SecurityDescription> schemes, SocketConsoleTickets? tickets)
     {
         var path = options.DocsPath.TrimEnd('/') + "/ws";
         var root = new Uri("https://trexon.invalid" + path + "/");
@@ -25,8 +26,11 @@ internal static class WebSocketConsole
             schemaUrl = Relative(options.OpenApiPath),
             appUrl = Relative("/"),
             docsUrl = "../",
-            // Browser WebSocket cannot set arbitrary credential headers; use the existing cookie flow.
-            auth = loginPath != null && cookies ? new
+            loginUrl = loginPath == null ? null : Relative(loginPath),
+            ticketUrl = tickets == null ? null : "ticket",
+            credentialSchemes = schemes.Where(s => s.Id is "Bearer" or "ApiKey")
+                .Select(s => new { name = s.Id, header = s.Id == "Bearer" ? "Authorization" : s.Header }),
+            auth = loginPath != null && schemes.Any(s => s.Id == "Cookies") ? new
             {
                 csrfUrl = Relative(loginPath[..^6] + "/cookie/csrf"),
                 loginUrl = Relative(loginPath[..^6] + "/cookie/login"),
@@ -34,6 +38,8 @@ internal static class WebSocketConsole
                 meUrl = Relative(loginPath[..^6] + "/me")
             } : null
         })).AllowAnonymous().ExcludeFromDescription();
+        if (tickets != null)
+            app.MapPost(path + "/ticket", (Func<HttpContext, Task<IResult>>)tickets.IssueAsync).AllowAnonymous().ExcludeFromDescription();
     }
 
     private static IResult Resource(string name, string type) => Results.Stream(

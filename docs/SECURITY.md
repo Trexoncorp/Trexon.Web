@@ -133,3 +133,8 @@ Swagger request interceptor; автоматическая подстановка
 cookies транспорт отдельно проверяет Origin; CORS не является защитой WebSocket.
 Рекомендованный браузерный поток — cookie login по HTTPS, затем WSS того же origin.
 [Полный контракт и ограничения](WEBSOCKETS.md).
+
+Встроенная [WebSocket-консоль](WEBSOCKETS.md#встроенная-консоль-docsws) поддерживает
+логин/пароль, Bearer token, API key и cookie. Одноразовый пропуск на подключение
+сохраняет исходную схему: ограничения AuthenticationSchemes, ролей и policy проверяются
+стандартным механизмом перед upgrade. Пароли, JWT и API keys не передаются в URL.

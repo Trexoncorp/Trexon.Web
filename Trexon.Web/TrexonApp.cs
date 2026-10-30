@@ -166,6 +166,8 @@ public sealed class TrexonApp
                 return SecuritySchemes[0].Id;
             });
         var app = Builder.Build();
+        var consoleTickets = Options.EnableDocs && Sockets != null
+            ? new SocketConsoleTickets(app.Services.GetRequiredService<TimeProvider>(), SecuritySchemes, ApiKeyHeader) : null;
         try
         {
             RequestLogger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Trexon.Web.Requests");
@@ -209,6 +211,7 @@ public sealed class TrexonApp
                 Microsoft.AspNetCore.WebUtilities.ReasonPhrases.GetReasonPhrase(context.HttpContext.Response.StatusCode)));
             app.UseRouting();
             Sockets?.UseTransport(app);
+            consoleTickets?.Use(app);
             if (HasCors) app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -218,7 +221,7 @@ public sealed class TrexonApp
             foreach (var configure in _middleware) configure(app);
             if (Options.EnableDocs)
             {
-                WebSocketConsole.Map(app, Options, DocsLoginPath, SecuritySchemes.Any(s => s.Id == "Cookies"));
+                WebSocketConsole.Map(app, Options, DocsLoginPath, SecuritySchemes, consoleTickets);
                 app.MapGet(Options.OpenApiPath, (Swashbuckle.AspNetCore.Swagger.ISwaggerProvider provider) =>
                 {
                     var document = provider.GetSwagger("v1");

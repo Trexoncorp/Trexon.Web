@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Trexon.Web.Internal;
 
 namespace Trexon.Web.Sockets;
 
@@ -58,7 +59,7 @@ public sealed class WebSocketModule : ITrexonModule
         if (!allowed) { await Problems.WriteAsync(context, 403, "WebSocket origin is not allowed"); return; }
         // Resolve first, so DI/configuration failures can still return an ordinary HTTP problem response.
         var handler = (SocketHandler)context.RequestServices.GetRequiredService(endpoint.HandlerType);
-        using var socket = await context.WebSockets.AcceptWebSocketAsync();
+        using var socket = await context.WebSockets.AcceptWebSocketAsync(context.Features.Get<ConsoleSocketProtocol>()?.Value);
         using var lifetime = CancellationTokenSource.CreateLinkedTokenSource(context.RequestAborted, stopping);
         await handler.RunAsync(new SocketPeer(socket, context, options, lifetime.Token), endpoint.Room, options);
     }

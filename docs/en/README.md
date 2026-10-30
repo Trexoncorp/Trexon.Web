@@ -240,5 +240,7 @@ browser cookie login. [Detailed contract and complete examples](../WEBSOCKETS.md
 
 The built-in **WebSocket console** at `/docs/ws` provides endpoint selection, route
 parameters, schema-based JSON examples, send/receive logs and validation errors.
-Cookie sign-in is available with `UseUsers()` + `UseCookies()` over HTTPS. The page follows
+Username/password login, Bearer tokens and API keys are supported through short-lived,
+single-use connection tickets. The original endpoint still validates schemes, roles and policies.
+Cookie sign-in is also available with `UseUsers()` + `UseCookies()` over HTTPS. The page follows
 `DocsPath` and reverse-proxy PathBase, and is disabled with `EnableDocs = false`.

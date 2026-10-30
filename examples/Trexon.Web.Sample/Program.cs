@@ -500,7 +500,7 @@ namespace Trexon.Web.Sample
     // У public/private разные реестры: одинаковое имя комнаты не смешивает их участников.
     // Браузер входит через cookie по HTTPS и передаёт её при WSS-подключении автоматически.
     // Native-клиент может задать Authorization: Bearer или X-API-Key при подключении.
-    [Socket("/ws/private/{room}"), Authorize, Summary("Authenticated chat", Description = "The identity is checked before upgrade. Native clients use Bearer/API-key headers; browser clients sign in with cookies over HTTPS.")]
+    [Socket("/ws/private/{room}"), Authorize, Summary("Authenticated chat", Description = "Identity is checked before upgrade. Use username/password, Bearer tokens or API keys in /docs/ws; custom browser clients can use HTTPS cookies.")]
     public sealed class PrivateChatSocket(TimeProvider time) : ChatSocket(time);
 
     // 7. Встроенный браузерный клиент: строка отдаётся GET /chat без отдельных файлов.

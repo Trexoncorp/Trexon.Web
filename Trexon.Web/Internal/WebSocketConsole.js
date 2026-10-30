@@ -6,6 +6,7 @@
     const root = new URL('./', location.href);
     let config, documentSchema, endpoints = [], selected, socket = null;
     let sent = 0, received = 0;
+    let connecting = false, authBusy = false, passwordToken = null;
     const fields = new Map();
 
     function log(direction, value, failed = false) {
@@ -32,7 +33,12 @@
     function state(text, kind = '') {
         el('state').textContent = text;
         el('state').dataset.state = kind;
-        const busy = socket !== null;
+        const busy = socket !== null || connecting;
+        el('auth-mode').disabled = busy;
+        for (const id of ['username', 'password', 'access-token', 'api-key']) el(id).disabled = busy;
+        el('login').disabled = busy || authBusy;
+        el('logout').disabled = busy || authBusy;
+        el('clear-auth').disabled = connecting;
         const connected = socket?.readyState === WebSocket.OPEN;
         for (const id of ['endpoint', 'path']) el(id).disabled = busy || !selected;
         for (const field of fields.values()) field.disabled = busy;
@@ -150,14 +156,18 @@
         state('Disconnected');
     }
 
-    el('connect-form').addEventListener('submit', event => {
+    el('connect-form').addEventListener('submit', async event => {
         event.preventDefault();
-        if (socket || !selected) return;
+        if (socket || connecting || !selected) return;
         el('notice').textContent = '';
+        connecting = true;
+        state('Authorizing…');
         try {
             const url = connectionUrl();
-            const active = new WebSocket(url);
+            const protocol = await connectionProtocol(url);
+            const active = protocol ? new WebSocket(url, [protocol]) : new WebSocket(url);
             socket = active;
+            connecting = false;
             state('Connecting…');
             log('CONNECTING', url.href);
             active.onopen = () => {
@@ -187,7 +197,11 @@
                 state('Disconnected', event.code === 1000 ? '' : 'error');
                 log('CLOSED', `Code ${event.code}${event.reason ? ' · ' + event.reason : ''}`, event.code !== 1000);
             };
-        } catch (error) { el('notice').textContent = error.message; }
+        } catch (error) {
+            connecting = false;
+            state('Disconnected', 'error');
+            el('notice').textContent = error.message;
+        }
     });
 
     function disconnect() {
@@ -234,31 +248,88 @@
         });
     }
 
-    let authBusy = false;
+    function showAuthentication() {
+        const mode = el('auth-mode').value;
+        el('bearer-auth').hidden = mode !== 'Bearer';
+        el('api-key-auth').hidden = mode !== 'ApiKey';
+        el('login-form').hidden = mode !== 'password' && mode !== 'cookie';
+        el('logout').hidden = mode !== 'cookie';
+        el('auth-error').textContent = '';
+        el('auth-status').textContent = mode === 'password' && passwordToken
+            ? `Signed in as ${passwordToken.username}. Connect to an endpoint.`
+            : mode === 'default' ? 'The endpoint uses its default authentication, including existing cookies.'
+            : 'Credentials are checked when you sign in or connect.';
+    }
+
+    async function connectionProtocol(url) {
+        const mode = el('auth-mode').value;
+        if (mode === 'default' || mode === 'cookie') return null;
+        if (!config.ticketUrl) throw new Error('Connection tickets are not available.');
+        const scheme = mode === 'password' ? 'Bearer' : mode;
+        const headers = { 'Content-Type': 'application/json' };
+        if (scheme === 'Bearer') {
+            const token = mode === 'password' ? passwordToken?.token : el('access-token').value.trim().replace(/^Bearer\s+/i, '');
+            if (!token) throw new Error(mode === 'password' ? 'Sign in with your username and password first.' : 'Paste a Bearer token.');
+            headers.Authorization = 'Bearer ' + token;
+        } else {
+            const key = el('api-key').value.trim();
+            if (!key) throw new Error('Paste an API key.');
+            headers[config.credentialSchemes.find(item => item.name === 'ApiKey').header] = key;
+        }
+        const appPath = new URL(config.appUrl, root).pathname;
+        if (!url.pathname.startsWith(appPath)) throw new Error('Choose an endpoint in this application.');
+        const path = url.pathname.slice(appPath.length - 1) + url.search;
+        const ticket = await json(config.ticketUrl, {
+            method: 'POST', credentials: 'omit', redirect: 'error',
+            headers, body: JSON.stringify({ path, scheme }), signal: AbortSignal.timeout(15000)
+        });
+        return ticket.protocol;
+    }
+
     async function changeAccount(login) {
         if (authBusy) return;
         authBusy = true;
         el('auth-error').textContent = '';
         el('login').disabled = el('logout').disabled = true;
         try {
-            const response = await cookieMutation(login ? config.auth.loginUrl : config.auth.logoutUrl,
-                login ? { username: el('username').value, password: el('password').value } : undefined);
-            if (!response.ok) {
-                const problem = await response.json();
-                throw new Error(problem.detail || Object.values(problem.errors || {}).flat().join(' ') || problem.title);
+            const body = { username: el('username').value, password: el('password').value };
+            if (el('auth-mode').value === 'cookie') {
+                const response = await cookieMutation(login ? config.auth.loginUrl : config.auth.logoutUrl, login ? body : undefined);
+                if (!response.ok) {
+                    const problem = await response.json();
+                    throw new Error(problem.detail || Object.values(problem.errors || {}).flat().join(' ') || problem.title);
+                }
+                disconnect();
+                el('auth-status').textContent = login ? `Signed in as ${(await response.json()).username}. Connect to an endpoint.` : 'Not signed in.';
+            } else {
+                passwordToken = null;
+                const result = await json(config.loginUrl, {
+                    method: 'POST', credentials: 'omit', redirect: 'error',
+                    headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+                });
+                passwordToken = { token: result.accessToken, username: result.user.username };
+                el('auth-status').textContent = `Signed in as ${result.user.username}. Connect to an endpoint.`;
             }
-            // Existing sockets retain their handshake identity; reconnect after a session change.
-            disconnect();
-            el('auth-status').textContent = login ? `Signed in as ${(await response.json()).username}. Connect to an endpoint.` : 'Not signed in.';
-        } catch (error) { el('auth-error').textContent = error.message; }
+        } catch (error) {
+            el('auth-error').textContent = error.message;
+            if (el('auth-mode').value === 'password') el('auth-status').textContent = 'Not signed in.';
+        }
         finally {
             el('password').value = '';
             authBusy = false;
             el('login').disabled = el('logout').disabled = false;
         }
     }
+    el('auth-mode').addEventListener('change', showAuthentication);
     el('login-form').addEventListener('submit', event => { event.preventDefault(); void changeAccount(true); });
     el('logout').addEventListener('click', () => { void changeAccount(false); });
+    el('clear-auth').addEventListener('click', () => {
+        disconnect();
+        passwordToken = null;
+        for (const id of ['username', 'password', 'access-token', 'api-key']) el(id).value = '';
+        el('auth-mode').value = 'default';
+        showAuthentication();
+    });
     window.addEventListener('pagehide', () => socket?.close(1000, 'Page closed'));
 
     async function initialize() {
@@ -284,11 +355,18 @@
                 el('endpoint').append(option);
                 el('notice').textContent = 'Register a handler with AddSocket<THandler>() and its endpoint will appear here automatically.';
             }
-            if (config.auth && location.protocol === 'https:') {
-                el('login-form').hidden = false;
-                try { el('auth-status').textContent = 'Signed in as ' + (await json(config.auth.meUrl)).username; }
-                catch { el('auth-status').textContent = 'Sign in to use protected endpoints. Create an account through HTTP / Swagger.'; }
-            } else if (config.auth) el('auth-status').textContent = 'Public endpoints are ready. Open the application over HTTPS to sign in with cookies.';
+            const methods = [];
+            if (config.loginUrl && config.ticketUrl) methods.push(['password', 'Username and password']);
+            for (const scheme of config.credentialSchemes) methods.push([scheme.name, scheme.name === 'Bearer' ? 'Bearer token' : 'API key']);
+            if (config.auth && location.protocol === 'https:') methods.push(['cookie', 'Cookie session (HTTPS)']);
+            for (const [value, label] of methods) {
+                const option = document.createElement('option');
+                option.value = value; option.textContent = label;
+                el('auth-mode').append(option);
+            }
+            const apiKey = config.credentialSchemes.find(item => item.name === 'ApiKey');
+            if (apiKey) el('api-key-label').textContent = 'API key · ' + apiKey.header;
+            showAuthentication();
         } catch (error) { el('notice').textContent = 'Could not load documentation: ' + error.message; }
     }
     void initialize();

@@ -216,5 +216,7 @@ ist kein Socket-Client. `/chat` demonstriert öffentliche/private Räume und Coo
 
 Die integrierte **WebSocket console** unter `/docs/ws` bietet Routenauswahl, Parameter,
 JSON-Beispiele aus Schemas und ein Sende-/Empfangsprotokoll. Die Oberfläche ist Englisch.
-Cookie-Anmeldung ist mit `UseUsers()` + `UseCookies()` über HTTPS verfügbar.
+Benutzername/Passwort, Bearer-Token und API-Schlüssel werden über kurzlebige, einmalige
+Verbindungstickets unterstützt. Schema-, Rollen- und Policy-Prüfungen bleiben erhalten.
+Cookie-Anmeldung ist zusätzlich mit `UseUsers()` + `UseCookies()` über HTTPS verfügbar.
 `DocsPath` und PathBase werden berücksichtigt; `EnableDocs = false` deaktiviert die Konsole.

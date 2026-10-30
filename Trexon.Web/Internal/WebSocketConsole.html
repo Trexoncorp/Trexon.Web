@@ -89,16 +89,28 @@
             </section>
             <section class="card">
                 <h2>Access</h2>
-                <p id="auth-status" role="status" class="muted">Public endpoints do not require sign-in.</p>
+                <label for="auth-mode">Authentication</label>
+                <select id="auth-mode"><option value="default">Default / existing cookie</option></select>
+                <p id="auth-status" role="status" class="muted">Choose how to authenticate this connection.</p>
+                <div id="bearer-auth" hidden>
+                    <label for="access-token">Bearer token</label>
+                    <input id="access-token" type="password" autocomplete="off" placeholder="Paste an access token">
+                </div>
+                <div id="api-key-auth" hidden>
+                    <label id="api-key-label" for="api-key">API key</label>
+                    <input id="api-key" type="password" autocomplete="off" placeholder="Paste an API key">
+                </div>
                 <form id="login-form" hidden>
                     <label for="username">Username</label><input id="username" name="username" autocomplete="username" required maxlength="64">
                     <label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="128">
                     <div class="row actions"><button id="login" class="primary">Sign in</button><button id="logout" type="button">Sign out</button></div>
                 </form>
+                <div class="actions"><button id="clear-auth" type="button">Clear authorization</button></div>
                 <p id="auth-error" role="alert" class="error"></p>
                 <details class="actions"><summary>Connecting to protected endpoints</summary>
-                    <p class="muted">The browser sends its session cookie automatically. Built-in cookie sign-in requires HTTPS, UseUsers() and UseCookies().</p>
-                    <p class="muted">Swagger JWT authorization does not carry over to WebSocket connections. Native clients can set Authorization and X-API-Key headers; browser WebSocket clients cannot. Tokens are never added to the URL.</p>
+                    <p class="muted">Sign in with your username and password, paste a Bearer token or use an API key. Available methods follow the application's authentication modules.</p>
+                    <p class="muted">For token and API-key connections, the console obtains a single-use, 30-second connection ticket. The endpoint still checks its usual authentication scheme, roles and policies. Credentials are never added to the URL or saved in browser storage.</p>
+                    <p class="muted">Cookie sign-in additionally requires HTTPS and UseCookies(). Existing session cookies are sent automatically in Default mode. Use HTTPS outside local development.</p>
                     <p class="muted">Connect again after signing in: access is checked when the connection opens.</p>
                 </details>
             </section>
