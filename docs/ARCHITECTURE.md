@@ -42,7 +42,7 @@ Builder выполняет только регистрацию. `BuildAsync` с�
 1. Обёртка request logging через `Trexon.Logging.Log.Info`, включённая по умолчанию.
 2. Обработчик исключений.
 3. Request ID и обработка пустых error responses.
-4. Routing и WebSocket transport, если есть socket handlers.
+4. Проверка общего `ApiOptions.Prefix` и `UsePathBase`, затем routing и WebSocket transport.
 5. CORS, если подключён.
 6. Authentication, затем authorization.
 7. Rate limiter, затем output cache, если подключены.

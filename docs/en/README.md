@@ -3,7 +3,7 @@
 [Home](../../README.md) · [Русское руководство](../README.md) · [Deutsch](../de/README.md)
 
 Trexon.Web provides explicit attribute routes and reusable service modules on top of
-ASP.NET Core MVC/Kestrel. This guide describes the stable `1.0.0` API. It does
+ASP.NET Core MVC/Kestrel. This guide describes the stable `1.0.1` API. It does
 not claim higher throughput than Minimal APIs or Native AOT compatibility.
 
 
@@ -32,7 +32,7 @@ selects the listener. The sample consumes Trexon.Logging, Configuration, and Dat
 ## First independent application
 
 Create an ASP.NET Core application with `dotnet new web -n Hello`, then install
-`dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.0`. Replace Program.cs:
+`dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.1`. Replace Program.cs:
 
 <!-- verify: first-api -->
 ```csharp
@@ -252,3 +252,11 @@ whole API in one Program.cs. Run it with `dotnet run --project examples/Trexon.W
 Both `TrexonApp` and a built `WebApplication` accept `await web.RunAsync(5081)`: HTTP listens
 on `127.0.0.1:5081`, overriding configured listening addresses. The no-port overload retains
 normal host configuration, including HTTPS. Port zero selects an available port.
+
+## URL prefixes
+
+`app.AddRoutes<GreetingRoutes>("/v1")` prefixes a route class; `AddSocket<T>("/v1")`
+prefixes a socket handler. Repeating a registration with a prefix replaces it; a plain
+registration preserves it. `api.Prefix = "/v1"` mounts the whole application including
+docs at `/v1/docs`, sockets, auth and health. Empty prefixes preserve existing URLs.
+[Complete example and rules](../ROUTING.md#префикс-роутера-и-всего-приложения).

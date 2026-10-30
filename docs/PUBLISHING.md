@@ -2,7 +2,7 @@
 
 [Оглавление](README.md)
 
-Первый стабильный релиз — `1.0.0`. Версия в csproj должна совпадать с тегом
+Первый стабильный релиз — `1.0.0`; текущий патч — `1.0.1`. Версия в csproj должна совпадать с тегом
 `vMAJOR.MINOR.PATCH[-PRERELEASE]`. Опубликованные версии и теги не перемещаются.
 Контракт и ограничения выпуска описаны в [changelog](../CHANGELOG.md) и [границах версии](ROADMAP.md).
 
@@ -19,7 +19,7 @@ dotnet test --solution Trexon.Web.slnx --configuration Release --no-build --no-r
 python3 scripts/check-docs.py
 python3 scripts/smoke-sample.py
 dotnet pack Trexon.Web/Trexon.Web.csproj --configuration Release --no-build --output artifacts
-python3 scripts/smoke-package.py --source artifacts --version 1.0.0
+python3 scripts/smoke-package.py --source artifacts --version 1.0.1
 ```
 
 `scripts/smoke-package.py` создаёт новый web-проект без ProjectReference, восстанавливает
@@ -31,9 +31,9 @@ python3 scripts/smoke-package.py --source artifacts --version 1.0.0
 После обновления версии, README и CHANGELOG отправьте `main`, дождитесь CI, затем:
 
 ```sh
-bash scripts/release-version.sh v1.0.0
-git tag -a v1.0.0 -m "Trexon.Web 1.0.0"
-git push origin v1.0.0
+bash scripts/release-version.sh v1.0.1
+git tag -a v1.0.1 -m "Trexon.Web 1.0.1"
+git push origin v1.0.1
 ```
 
 `.github/workflows/release.yml` повторяет полную матрицу CI, проверяет совпадение
@@ -53,10 +53,10 @@ Package ID `Trexon.Web`, версию и зависимости, затем по
 После окончания проверки и индексации NuGet проверьте установку именно из публичного feed:
 
 ```sh
-python3 scripts/smoke-package.py --version 1.0.0
+python3 scripts/smoke-package.py --version 1.0.1
 ```
 
-Ожидаемый итог: пакет `Trexon.Web/1.0.0` восстанавливается в чистый кеш, приложение
+Ожидаемый итог: пакет `Trexon.Web/1.0.1` восстанавливается в чистый кеш, приложение
 запускается и HTTP/Swagger/WebSocket console/Log.Info проходят smoke-проверки.
 Создание тега, загрузка файла и видимость страницы по отдельности ещё не подтверждают
 доступность версии в публичном restore feed.

@@ -6,7 +6,7 @@ HTTP-APIs mit Attributen für C# / .NET 8+: explizite Routenklassen, asynchroner
 automatische Validierung, Swagger UI unter `/docs` und optionale Module.
 Auf ASP.NET Core MVC und Kestrel aufgebaut. MIT-Lizenz.
 
-**Version `1.0.0`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.0) · [Änderungen](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md). Ein Geschwindigkeitsvorteil gegenüber Minimal APIs wird nicht behauptet.
+**Version `1.0.1`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.1) · [Änderungen](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md). Ein Geschwindigkeitsvorteil gegenüber Minimal APIs wird nicht behauptet.
 
 ## Vollständiges erstes Beispiel
 
@@ -101,7 +101,7 @@ Das stabile Paket installieren:
 
 ```sh
 dotnet new web -n Hello
-dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.0
+dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.1
 dotnet build Trexon.Web.slnx --configuration Release -warnaserror
 dotnet test --solution Trexon.Web.slnx --configuration Release --no-build --no-restore
 python3 scripts/check-docs.py
@@ -117,3 +117,11 @@ I/O und Host-Lebenszyklus verwenden async APIs mit Abbruchtoken. Konfiguration u
 CPU-Arbeit bleiben synchron. Microsoft.Data.Sqlite führt seine async Aufrufe intern
 synchron aus. Ein eigener `IUserStore` kann eine echte asynchrone Netzwerkdatenbank nutzen.
 Native AOT und Trimming werden nicht unterstützt.
+
+## URL-Präfixe
+
+`app.AddRoutes<GreetingRoutes>("/v1")` setzt ein Präfix für eine Routengruppe;
+`AddSocket<T>("/v1")` gilt für WebSockets. `api.Prefix = "/v1"` in `TrexonApp.Create`
+verschiebt den gesamten Dienst einschließlich Swagger nach `/v1/docs`, Konsole nach
+`/v1/docs/ws` und aller Auth-/Health-Endpunkte.
+[Beispiel](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/ROUTING.md#префикс-роутера-и-всего-приложения).

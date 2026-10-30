@@ -28,6 +28,64 @@ public sealed class ProductsRoutes(ProductService service)
 Префикс класса и относительный путь метода объединяются. Как и в MVC, путь метода,
 начинающийся с `/` или `~/`, заменяет префикс; используйте это осознанно.
 
+## Префикс роутера и всего приложения
+
+С версии `1.0.1` можно добавить префикс при подключении класса:
+`app.AddRoutes<ProductsRoutes>("/v1")`. При `[Routes("/products")]` адресом станет
+`/v1/products`, а документация останется на `/docs`. Для сокетов тот же подход:
+`app.AddSocket<ChatSocket>("/v1")` добавляет `/v1` к пути `[Socket]`.
+
+`api.Prefix` переносит **всё приложение**, включая HTTP, WebSocket, auth, health checks,
+Minimal API из `Map`, Swagger и консоль. Полный пример:
+
+<!-- verify: route-prefixes -->
+```csharp
+using Trexon.Web;
+using Trexon.Web.Sockets;
+
+var app = TrexonApp.Create(args, api => api.Prefix = "/service");
+app.AddRoutes<UsersRoutes>("/v1");
+app.AddSocket<EchoSocket>("/v1");
+await app.RunAsync(5080);
+
+[Routes("/users"), Tag("Users")]
+public sealed class UsersRoutes
+{
+    [Get("{id:int}")]
+    public ValueTask<UserView> Get(int id) => ValueTask.FromResult(new UserView(id));
+}
+
+[Socket("/ws/echo")]
+public sealed class EchoSocket : SocketHandler<string>
+{
+    public override ValueTask OnMessageAsync(string message, SocketConnection<string> connection, CancellationToken token) =>
+        connection.SendAsync(message, token);
+}
+
+public sealed record UserView(int Id);
+```
+
+Получатся `/service/v1/users/42`, `/service/v1/ws/echo`, `/service/docs` и
+`/service/docs/ws`. Без `/service` запрос вернёт 404; `/service-other` тоже не совпадёт.
+Без настройки общего префикса адреса остаются прежними. `api.Version` по-прежнему
+меняет подпись версии в OpenAPI, а `[Tag]` — группу документации; URL они не меняют.
+
+Префикс задаётся до `BuildAsync`. Допускается буквальный абсолютный путь вроде `/v1`
+или `/api/v1/`; завершающий `/` убирается. Пустая строка и `/` снимают префикс.
+Используйте ASCII-буквы, цифры, `/`, `-`, `_`, `.`, `~`; параметры, query, fragment,
+пустые сегменты `//`, отдельные `.` и `..`, percent encoding не допускаются.
+
+Повторный `AddRoutes<T>("/v2")` **меняет** префикс уже подключённого класса,
+а `AddRoutes<T>()` его сохраняет. Одновременно старый и новый адрес не публикуются.
+У `AddSocket` те же правила. Для методов с абсолютным путём `/` или `~/` префикс класса
+по правилам MVC заменяется, но префикс регистрации и общий `api.Prefix` сохраняются.
+
+OpenAPI использует `servers` для общего префикса и внешнего `PathBase` прокси;
+префикс роутера входит в `paths`. Swagger и WebSocket-консоль учитывают оба уровня
+без повторения `/v1`. Если формируете свои ссылки или redirects, используйте MVC
+`CreatedAtActionResult`/`LinkGenerator` либо учитывайте `HttpContext.Request.PathBase`:
+произвольные строковые URL в теле ответа библиотека не переписывает.
+
 ## Источники параметров
 
 | Параметр | Источник |

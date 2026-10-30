@@ -6,7 +6,7 @@
 асинхронный запуск, автоматическая валидация, Swagger на `/docs` и готовые модули.
 Основана на ASP.NET Core MVC и Kestrel. Лицензия MIT.
 
-**Версия `1.0.0`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.0) · [История изменений](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md). Преимущество в производительности над Minimal APIs не заявляется.
+**Версия `1.0.1`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.1) · [История изменений](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md). Преимущество в производительности над Minimal APIs не заявляется.
 
 ## Первое приложение целиком
 
@@ -42,6 +42,14 @@ dotnet run --project examples/Trexon.Web.Calculator
 валидация, JSON и готовый Swagger на [127.0.0.1:5081/docs](http://127.0.0.1:5081/docs).
 Для запуска достаточно `await web.RunAsync(5081)` — как у `TrexonApp`, так и у
 собранного `WebApplication`. [Разбор и запросы](https://github.com/Trexoncorp/Trexon.Web/blob/main/examples/Trexon.Web.Calculator/README.md).
+
+## Префиксы URL
+
+`app.AddRoutes<GreetingRoutes>("/v1")` переносит группу на `/v1/hello/{name}`,
+оставляя Swagger на `/docs`. Для сокетов есть `AddSocket<T>("/v1")`.
+Общий `api.Prefix = "/v1"` в `TrexonApp.Create` переносит всё приложение:
+Swagger на `/v1/docs`, консоль на `/v1/docs/ws`, auth и health endpoints.
+[Полный пример и управление префиксами](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/ROUTING.md#префикс-роутера-и-всего-приложения).
 
 ## Запустить полный пример
 
@@ -115,7 +123,7 @@ public sealed class EchoSocket : SocketHandler<string>
 
 ```sh
 dotnet new web -n Hello
-dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.0
+dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.1
 ```
 
 Замените `Hello/Program.cs` первым примером и запустите

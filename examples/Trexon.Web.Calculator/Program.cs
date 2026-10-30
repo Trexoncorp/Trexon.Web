@@ -5,6 +5,8 @@ using Trexon.Web;
 // Всё приложение — в этом файле. Запуск из корня репозитория:
 // dotnet run --project examples/Trexon.Web.Calculator
 var web = TrexonApp.Create(args, api => api.Title = "Calculator API");
+// Для префикса этого роутера замените следующую строку на web.AddRoutes<CalculatorRoutes>("/v1");
+// Тогда операции будут на /v1/calculator, а Swagger по-прежнему на /docs.
 web.AddRoutes<CalculatorRoutes>();
 // Указываем только порт: http://127.0.0.1:5081. Swagger уже доступен по /docs.
 await web.RunAsync(5081);

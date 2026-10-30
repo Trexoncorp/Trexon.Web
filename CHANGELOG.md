@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.1 — 2026-10-30
+
+- Added `ApiOptions.Prefix` to mount the entire service, including docs, auth,
+  health endpoints, HTTP routes and WebSockets, under a path such as `/v1`.
+- Added `AddRoutes<T>(prefix)`, `AddRoutes(Type, prefix)` and `AddSocket<T>(prefix)`
+  to prefix individual route groups without editing their attributes. Prefixes can
+  be changed or cleared before building; plain registration preserves the configured prefix.
+- Preserved prefixes for absolute MVC action routes, validation, authorization,
+  Swagger password login and single-use WebSocket console tickets.
+- OpenAPI now describes the effective application/proxy mount in `servers`.
+  Problem Details, request logs and generated sample links retain the public path.
+- Updated the calculator comments, compiled prefix walkthrough and package consumer
+  smoke test. Existing registrations and URLs keep their behavior with empty prefixes.
+
 ## 1.0.0 — 2026-10-30
 
 First stable release of Trexon.Web for small C# HTTP and WebSocket services.

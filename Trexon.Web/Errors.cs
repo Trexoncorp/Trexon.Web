@@ -74,7 +74,7 @@ internal static class Problems
             Title = title,
             Detail = detail,
             Type = $"https://httpstatuses.io/{status}",
-            Instance = context.Request.Path
+            Instance = context.Request.PathBase.Add(context.Request.Path)
         };
         problem.Extensions["traceId"] = Activity.Current?.Id ?? context.TraceIdentifier;
         return problem;
@@ -93,7 +93,7 @@ internal static class Problems
             Status = 400,
             Title = "Request validation failed",
             Type = "https://httpstatuses.io/400",
-            Instance = context.Request.Path
+            Instance = context.Request.PathBase.Add(context.Request.Path)
         };
         problem.Extensions["traceId"] = Activity.Current?.Id ?? context.TraceIdentifier;
         return problem;

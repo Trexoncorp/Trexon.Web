@@ -13,7 +13,7 @@
 
 ```sh
 dotnet new web -n Hello
-dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.0
+dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.1
 ```
 
 `Hello` остаётся обычным ASP.NET Core приложением. Trexon.Web — библиотека, собственного

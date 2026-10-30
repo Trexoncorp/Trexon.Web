@@ -20,6 +20,7 @@ namespace Trexon.Web;
 public sealed class TrexonApp
 {
     private readonly HashSet<Type> _routes = [];
+    private readonly Dictionary<Type, string> _routePrefixes = [];
     private readonly Dictionary<Type, ITrexonModule> _modules = [];
     private readonly List<Action<WebApplication>> _middleware = [];
     private readonly List<Action<WebApplication>> _endpoints = [];
@@ -56,6 +57,8 @@ public sealed class TrexonApp
             manager.FeatureProviders.Clear();
             manager.FeatureProviders.Add(new RouteFeatureProvider(_routes));
         }).AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+        // Run after module conventions, including the built-in account route customization.
+        Services.PostConfigure<MvcOptions>(options => options.Conventions.Add(new RegisteredRoutePrefixes(_routePrefixes)));
         Services.Configure<ApiBehaviorOptions>(options =>
         {
             options.InvalidModelStateResponseFactory = context => new BadRequestObjectResult(Problems.Validation(context.HttpContext,
@@ -93,6 +96,17 @@ public sealed class TrexonApp
     }
     /// <summary>Connects one public route class; no inheritance or naming convention is needed.</summary>
     public TrexonApp AddRoutes<T>() where T : class => AddRoutes(typeof(T));
+    /// <summary>Connects a route class under an additional prefix. Repeating this call changes its prefix before BuildAsync.</summary>
+    public TrexonApp AddRoutes<T>(string prefix) where T : class => AddRoutes(typeof(T), prefix);
+    /// <summary>Connects a route type under an additional prefix. Plain AddRoutes calls preserve this setting.</summary>
+    public TrexonApp AddRoutes(Type routeType, string prefix)
+    {
+        EnsureMutable();
+        var normalized = RoutePrefixes.Normalize(prefix);
+        AddRoutes(routeType);
+        _routePrefixes[routeType] = normalized;
+        return this;
+    }
     /// <summary>Connects one route type explicitly.</summary>
     public TrexonApp AddRoutes(Type routeType)
     {
@@ -147,10 +161,13 @@ public sealed class TrexonApp
     {
         EnsureMutable();
         cancellationToken.ThrowIfCancellationRequested();
+        var prefix = RoutePrefixes.Normalize(Options.Prefix);
         if (!Options.DocsPath.StartsWith('/') || Options.DocsPath == "/" ||
             !Options.OpenApiPath.StartsWith('/') || Options.OpenApiPath.Contains('{'))
             throw new InvalidOperationException("Documentation paths must be absolute paths; DocsPath cannot be root.");
         _built = true;
+        if (DocsLoginPath != null && _routePrefixes.TryGetValue(typeof(Trexon.Web.Users.AccountRoutes), out var accountsPrefix) && accountsPrefix.Length > 0)
+            DocsLoginPath = RoutePrefixes.Combine(accountsPrefix, DocsLoginPath);
         if (SecuritySchemes.Select(s => s.Id).Distinct().Count() != SecuritySchemes.Count)
             throw new InvalidOperationException("An authentication scheme can only be registered once.");
         if (SecuritySchemes.Count > 0)
@@ -179,7 +196,7 @@ public sealed class TrexonApp
                 {
                     try
                     {
-                        await RequestLogWriter(new(context.Request.Method, context.Request.Path, context.Response.StatusCode,
+                        await RequestLogWriter(new(context.Request.Method, context.Request.PathBase.Add(context.Request.Path), context.Response.StatusCode,
                             System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds, context.TraceIdentifier), context.RequestAborted);
                     }
                     catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested) { }
@@ -206,6 +223,16 @@ public sealed class TrexonApp
             });
             app.UseStatusCodePages(context => Problems.WriteAsync(context.HttpContext, context.HttpContext.Response.StatusCode,
                 Microsoft.AspNetCore.WebUtilities.ReasonPhrases.GetReasonPhrase(context.HttpContext.Response.StatusCode)));
+            if (prefix.Length > 0)
+            {
+                app.Use(async (context, next) =>
+                {
+                    if (!context.Request.Path.StartsWithSegments(prefix))
+                    { await Problems.WriteAsync(context, 404, "Not Found"); return; }
+                    await next(context);
+                });
+                app.UsePathBase(prefix);
+            }
             app.UseRouting();
             Sockets?.UseTransport(app);
             consoleTickets?.Use(app);
@@ -219,9 +246,9 @@ public sealed class TrexonApp
             if (Options.EnableDocs)
             {
                 WebSocketConsole.Map(app, Options, DocsLoginPath, SecuritySchemes, consoleTickets);
-                app.MapGet(Options.OpenApiPath, (Swashbuckle.AspNetCore.Swagger.ISwaggerProvider provider) =>
+                app.MapGet(Options.OpenApiPath, (HttpContext context, Swashbuckle.AspNetCore.Swagger.ISwaggerProvider provider) =>
                 {
-                    var document = provider.GetSwagger("v1");
+                    var document = provider.GetSwagger("v1", basePath: context.Request.PathBase.Value);
                     using var text = new System.IO.StringWriter(System.Globalization.CultureInfo.InvariantCulture);
                     document.SerializeAsV3(new OpenApiJsonWriter(text));
                     return Results.Text(text.ToString(), "application/json");

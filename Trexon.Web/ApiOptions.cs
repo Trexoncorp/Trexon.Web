@@ -1,8 +1,10 @@
 namespace Trexon.Web;
 
-/// <summary>Documentation and error-response defaults.</summary>
+/// <summary>Application paths, documentation and error-response defaults.</summary>
 public sealed class ApiOptions
 {
+    /// <summary>Mounts the entire application, including docs and auth, under a literal path such as /v1. Empty by default.</summary>
+    public string Prefix { get; set; } = "";
     /// <summary>OpenAPI title.</summary>
     public string Title { get; set; } = "Trexon API";
     /// <summary>OpenAPI version.</summary>

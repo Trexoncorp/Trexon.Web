@@ -83,7 +83,7 @@ app.UseJwt(new JwtSettings("trexon-sample", "trexon-sample", signingKey))
 app.Map(web =>
 {
     // Служебные страницы скрываем из списка операций OpenAPI.
-    web.MapGet("/", () => Results.Redirect("/docs")).ExcludeFromDescription();
+    web.MapGet("/", (HttpContext context) => Results.Redirect(context.Request.PathBase + "/docs")).ExcludeFromDescription();
     // HTML/JavaScript хранится в строке SamplePages.Chat в конце этого же файла.
     web.MapGet("/chat", () => Results.Content(SamplePages.Chat, "text/html; charset=utf-8"))
         .ExcludeFromDescription();
@@ -324,8 +324,9 @@ namespace Trexon.Web.Sample
         public async Task<IActionResult> Create(CreateTask request, CancellationToken token)
         {
             var task = await tasks.Create(Owner, request, token);
-            // CreatedResult задаёт реальный статус 201, JSON-тело и заголовок Location.
-            return new CreatedResult($"/tasks/{task.Id}", task);
+            // CreatedAtActionResult задаёт реальный статус 201, JSON-тело и заголовок Location.
+            // MVC строит Location по маршруту Get и учитывает префиксы и PathBase.
+            return new CreatedAtActionResult(nameof(Get), null, new { id = task.Id }, task);
         }
 
         // PUT /tasks/{id}: id берётся из пути, request — из тела, token — из контекста.

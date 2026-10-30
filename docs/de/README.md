@@ -3,7 +3,7 @@
 [Startseite](../../README.de.md) · [English](../en/README.md) · [Русский](../README.md)
 
 Trexon.Web stellt explizite Routenklassen, Attribute und wiederverwendbare Module
-auf ASP.NET Core MVC/Kestrel bereit. Beschrieben wird die stabile Version `1.0.0`.
+auf ASP.NET Core MVC/Kestrel bereit. Beschrieben wird die stabile Version `1.0.1`.
 Ein Leistungsvorteil gegenüber Minimal APIs und Native-AOT-Unterstützung werden nicht behauptet.
 
 
@@ -33,7 +33,7 @@ den vorhandenen Trexon-NuGet-Paketen eingebunden.
 ## Eigenes erstes Programm
 
 Mit `dotnet new web -n Hello` eine ASP.NET-Core-Web-App erstellen, dann
-`dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.0` ausführen. Program.cs:
+`dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.1` ausführen. Program.cs:
 
 <!-- verify: first-api -->
 ```csharp
@@ -227,3 +227,11 @@ gesamte API in einer Program.cs. Start: `dotnet run --project examples/Trexon.We
 `await web.RunAsync(5081)` funktioniert mit TrexonApp und einer gebauten WebApplication
 und startet HTTP auf `127.0.0.1:5081`. Ohne Port bleibt die Host-Konfiguration einschließlich
 HTTPS erhalten. Port 0 wählt einen freien Port.
+
+## URL-Präfixe
+
+`AddRoutes<T>("/v1")` und `AddSocket<T>("/v1")` setzen ein Präfix pro Gruppe. Ein
+weiterer Aufruf mit Präfix ersetzt es; ein Aufruf ohne Argument behält es bei.
+`api.Prefix = "/v1"` verschiebt die ganze Anwendung einschließlich Swagger nach
+`/v1/docs`, WebSocket-Konsole nach `/v1/docs/ws`, Auth und Health.
+[Beispiel und Regeln](../ROUTING.md#префикс-роутера-и-всего-приложения).

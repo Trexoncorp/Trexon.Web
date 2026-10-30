@@ -89,7 +89,7 @@ def main():
                 call('POST', '/tasks', {'title': '   '}, token=access, expected=400)
                 task, headers = call('POST', '/tasks', {'title': 'Explore Trexon.Web'}, token=access, expected=201)
                 assert headers['X-Task-Module'] == 'enabled'
-                assert headers['Location'] == f'/tasks/{task["id"]}'
+                assert urllib.parse.urljoin(base, headers['Location']) == f'{base}/tasks/{task["id"]}'
                 call('GET', f'/tasks/{task["id"]}', token=bob['accessToken'], expected=404)
                 call('PUT', f'/tasks/{task["id"]}', {'title': 'Explore complete sample', 'completed': True}, token=access)
                 tasks, _ = call('GET', '/tasks?completed=true&take=10', token=access)

@@ -16,6 +16,7 @@ XML-комментарии всех публичных типов также в�
 | `Configuration` | ConfigurationManager |
 | `Options` | ApiOptions, настраивается до BuildAsync |
 | `AddRoutes<T>()` / `AddRoutes(Type)` | Явная регистрация класса `[Routes]` |
+| `AddRoutes<T>(string prefix)` / `AddRoutes(Type, string prefix)` | Добавочный префикс группы; повторный вызов меняет его до сборки |
 | `AddModule<T>()` / `AddModule(ITrexonModule)` | Подключение модуля |
 | `AddValidator<T, TValidator>()` | Scoped async-валидатор аргумента |
 | `Errors(Action<ErrorOptions>)` | Сопоставления исключений |
@@ -61,6 +62,7 @@ HTTP на `127.0.0.1` и заменяет адреса из URL/Kestrel-конф
 
 | Поле | Default |
 | --- | --- |
+| Prefix | `""`; общий путь приложения, включая документацию и auth |
 | Title | `Trexon API` |
 | Version | `v1` |
 | Description | null |
@@ -73,6 +75,7 @@ HTTP на `127.0.0.1` и заменяет адреса из URL/Kestrel-конф
 а `Version` — отображаемая версия API. SwaggerGen настраивается через `Services.Configure<SwaggerGenOptions>`.
 Встроенная WebSocket-консоль доступна по `DocsPath + "/ws"` (по умолчанию `/docs/ws`);
 `EnableDocs` также управляет её доступностью.
+Общий префикс и префикс группы маршрутов описаны в [Routing](ROUTING.md#префикс-роутера-и-всего-приложения).
 
 ## Контракты расширения
 
@@ -104,6 +107,8 @@ RequestLoggingModule, ServiceModuleExtensions. [Modules](MODULES.md) содер�
 ## WebSocket — namespace Trexon.Web.Sockets
 
 `AddSocket<THandler>()` автоматически включает транспорт и маршрут `[Socket(path)]`.
+`AddSocket<THandler>(string prefix)` дополнительно задаёт префикс группы; повторный
+вызов с префиксом меняет его, а без аргумента сохраняет.
 `UseWebSockets(Action<SocketOptions>)` необязателен и меняет defaults.
 `SocketHandler<T>` и `SocketHandler<TIn,TOut>` имеют обязательный `OnMessageAsync`
 и необязательные `OnConnectedAsync`/`OnDisconnectedAsync`.

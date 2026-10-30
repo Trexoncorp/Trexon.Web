@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>true</IsPackable>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <PackageId>Trexon.Web</PackageId>
     <Title>Trexon.Web</Title>
     <Authors>Trexoncorp</Authors>
@@ -15,7 +15,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>First stable release: attribute routes, validation, auth modules, typed WebSockets, built-in HTTP/WebSocket docs, and automatic Log.Info request logging. https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md</PackageReleaseNotes>
+    <PackageReleaseNotes>Application and router URL prefixes, prefix-aware Swagger/auth/WebSocket console, and corrected mounted request links. https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md</PackageReleaseNotes>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

@@ -274,3 +274,10 @@ Swagger показывает раздел WebSockets с адресами и inpu
 public/private комнаты на том же контракте.
 
 Первичный источник транспортных ограничений: [ASP.NET Core WebSockets](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/websockets?view=aspnetcore-8.0).
+
+## Префиксы URL
+
+`app.AddSocket<ChatSocket>("/v1")` добавляет `/v1` к пути `[Socket]`.
+Общий `api.Prefix = "/service"` дополнительно переносит всё приложение: HTTP, auth,
+сокеты и консоль `/service/docs/ws`. Авторизация и ticket-механизм продолжают работать.
+[Полный пример и правила изменения префиксов](ROUTING.md#префикс-роутера-и-всего-приложения).

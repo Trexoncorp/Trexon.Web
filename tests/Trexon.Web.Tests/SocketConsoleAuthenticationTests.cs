@@ -35,10 +35,13 @@ public sealed class SocketConsoleAuthenticationTests
         await Assert.ThrowsAnyAsync<Exception>(() => Connect(host, "/ws/console-bearer", ticket));
     }
 
-    [Fact]
-    public async Task Real_Kestrel_negotiates_the_ticket_protocol_and_authenticates_the_original_endpoint()
+    [Theory]
+    [InlineData("")]
+    [InlineData("/v1")]
+    public async Task Real_Kestrel_negotiates_the_ticket_protocol_and_authenticates_the_original_endpoint(string prefix)
     {
         var builder = TrexonApp.Create();
+        builder.Options.Prefix = prefix;
         builder.UseJwt(TestHost.Jwt).AddSocket<ConsoleBearerSocket>();
         builder.Builder.WebHost.UseUrls("http://127.0.0.1:0");
         await using var app = await builder.BuildAsync(Token);
@@ -49,13 +52,14 @@ public sealed class SocketConsoleAuthenticationTests
             using var http = new HttpClient { BaseAddress = new Uri(origin) };
             var token = app.Services.GetRequiredService<ITokenIssuer>().Issue("user", "real-client").Token;
             using var request = TicketRequest("/ws/console-bearer", "Bearer", token);
+            request.RequestUri = new Uri(prefix + "/docs/ws/ticket", UriKind.Relative);
             var response = await http.SendAsync(request, Token);
             response.EnsureSuccessStatusCode();
             var protocol = (string)(await response.Content.ReadFromJsonAsync<JsonObject>(Token))!["protocol"]!;
             using var socket = new ClientWebSocket();
             socket.Options.AddSubProtocol(protocol);
             socket.Options.SetRequestHeader("Origin", origin);
-            await socket.ConnectAsync(new Uri(origin.Replace("http://", "ws://", StringComparison.Ordinal) + "/ws/console-bearer"), Token);
+            await socket.ConnectAsync(new Uri(origin.Replace("http://", "ws://", StringComparison.Ordinal) + prefix + "/ws/console-bearer"), Token);
             Assert.Equal(protocol, socket.SubProtocol);
             Assert.Equal("real-client", await Read(socket));
             await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", Token);

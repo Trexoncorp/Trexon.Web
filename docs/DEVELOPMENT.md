@@ -35,7 +35,8 @@ SDK 10 использует Microsoft.Testing.Platform, поэтому нуже�
 формат ошибок, Swagger, явное подключение routes, конфликты, модули, JWT issuer/audience/
 expiry/signature, roles/policies, API keys, пароли, refresh reuse/logout, cookie CSRF,
 rate limit, caching, CORS, health, request logging, async startup/cancellation/disposal, запуск с портом через реальный Kestrel,
-операции/валидацию/OpenAPI одностраничного примера калькулятора,
+операции/валидацию/OpenAPI одностраничного примера калькулятора, общие и групповые
+префиксы с reverse-proxy PathBase, Location и защищённым WebSocket-ticket handshake,
 сохранность SQLite и конкурентную ротацию. WebSocket-тесты покрывают текст/JSON,
 фрагменты, UTF-8, nested/custom validation, комнаты, параллельные рассылки, lifecycle/disposal,
 JWT/roles/cookies, Origin, лимиты и shutdown. Есть проверка native ClientWebSocket через реальный Kestrel.

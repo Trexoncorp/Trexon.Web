@@ -28,10 +28,11 @@ public sealed class WebSocketModule : ITrexonModule
                     .WithMetadata(endpoint.HandlerType.GetCustomAttributes(true)).ExcludeFromDescription();
         });
     }
-    internal void Add<THandler>(TrexonApp app) where THandler : SocketHandler
+    internal void Add<THandler>(TrexonApp app, string? prefix = null) where THandler : SocketHandler
     {
         var type = typeof(THandler);
-        if (_endpoints.Any(endpoint => endpoint.HandlerType == type)) return;
+        var existing = _endpoints.FindIndex(endpoint => endpoint.HandlerType == type);
+        if (existing >= 0 && prefix == null) return;
         var path = type.GetCustomAttribute<SocketAttribute>()?.Path;
         if (!type.IsVisible || type.IsAbstract || type.ContainsGenericParameters || string.IsNullOrWhiteSpace(path) ||
             !path.StartsWith('/') || path.StartsWith("//", StringComparison.Ordinal) || path.Contains('#'))
@@ -39,6 +40,8 @@ public sealed class WebSocketModule : ITrexonModule
         var contract = type;
         while (contract != null && (!contract.IsGenericType || contract.GetGenericTypeDefinition() != typeof(SocketHandler<,>))) contract = contract.BaseType;
         if (contract == null) throw new ArgumentException("Derive a socket handler from SocketHandler<T> or SocketHandler<TIn,TOut>.");
+        if (!string.IsNullOrEmpty(prefix)) path = RoutePrefixes.Combine(prefix, path);
+        if (existing >= 0) { _endpoints[existing] = _endpoints[existing] with { Path = path }; return; }
         app.Services.AddScoped<THandler>();
         _endpoints.Add(new(type, path, contract.GenericTypeArguments[0], contract.GenericTypeArguments[1], new SocketRoom()));
     }
@@ -75,6 +78,14 @@ public static class SocketExtensions
     {
         app.EnsureMutable();
         GetModule(app).Add<THandler>(app);
+        return app;
+    }
+    /// <summary>Connects a typed socket under an additional prefix, or changes its prefix before BuildAsync.</summary>
+    public static TrexonApp AddSocket<THandler>(this TrexonApp app, string prefix) where THandler : SocketHandler
+    {
+        app.EnsureMutable();
+        var normalized = RoutePrefixes.Normalize(prefix);
+        GetModule(app).Add<THandler>(app, normalized);
         return app;
     }
     /// <summary>Optionally customizes WebSocket defaults. AddSocket also enables the transport automatically.</summary>

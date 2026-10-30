@@ -44,7 +44,12 @@ jobs:
       - run: python3 scripts/smoke-package.py --source artifacts/release
       - name: Prepare release notes and checksums
         run: |
-          cp CHANGELOG.md artifacts/release/RELEASE-NOTES.md
+          awk -v header="## ${GITHUB_REF_NAME#v} " '
+            index($0, header) == 1 { found=1; print; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > artifacts/release/RELEASE-NOTES.md
+          test -s artifacts/release/RELEASE-NOTES.md
           cd artifacts/release
           sha256sum *.nupkg *.snupkg > SHA256SUMS
       - uses: actions/upload-artifact@v4

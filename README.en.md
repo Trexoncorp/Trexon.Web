@@ -6,7 +6,7 @@ Attribute-first HTTP APIs for C# / .NET 8+. Explicit route classes, async startu
 automatic validation, Swagger UI at `/docs`, and optional service modules.
 Built on ASP.NET Core MVC and Kestrel. MIT license.
 
-**Version `1.0.0`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.0) · [Release notes](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md).
+**Version `1.0.1`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.1) · [Release notes](https://github.com/Trexoncorp/Trexon.Web/blob/main/CHANGELOG.md).
 No throughput advantage over Minimal APIs is claimed.
 
 ## A complete first API
@@ -43,6 +43,14 @@ dotnet run --project examples/Trexon.Web.Calculator
 parameter validation, JSON responses and Swagger at `http://127.0.0.1:5081/docs`.
 Use `await web.RunAsync(5081)` with either `TrexonApp` or a built `WebApplication` to
 choose the HTTP port. [Walkthrough](https://github.com/Trexoncorp/Trexon.Web/blob/main/examples/Trexon.Web.Calculator/README.md).
+
+## URL prefixes
+
+Use `app.AddRoutes<GreetingRoutes>("/v1")` for `/v1/hello/{name}` while keeping docs
+at `/docs`. `AddSocket<T>("/v1")` prefixes a socket group in the same way.
+For the whole service, set `api.Prefix = "/v1"` in `TrexonApp.Create`: this also mounts
+Swagger at `/v1/docs`, the socket console at `/v1/docs/ws`, and auth/health endpoints.
+[Complete prefix example](https://github.com/Trexoncorp/Trexon.Web/blob/main/docs/ROUTING.md#префикс-роутера-и-всего-приложения).
 
 ## Try the complete service
 
@@ -120,7 +128,7 @@ Install the stable package:
 
 ```sh
 dotnet new web -n Hello
-dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.0
+dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.1
 ```
 
 Replace `Hello/Program.cs` with the first example. Run with
