@@ -9,11 +9,11 @@
 Для запуска примера нужен ASP.NET Core Runtime 8, поставляемый в SDK 8.
 Проверьте установку: `dotnet --list-sdks` и `dotnet --list-runtimes`.
 
-Пока версия не опубликована, используйте ProjectReference:
+Установите стабильный пакет из NuGet:
 
 ```sh
 dotnet new web -n Hello
-dotnet add Hello/Hello.csproj reference /path/to/Trexon.Web/Trexon.Web/Trexon.Web.csproj
+dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.0
 ```
 
 `Hello` остаётся обычным ASP.NET Core приложением. Trexon.Web — библиотека, собственного

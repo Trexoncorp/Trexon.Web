@@ -4,7 +4,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>true</IsPackable>
-    <Version>1.0.0-dev</Version>
+    <Version>1.0.0</Version>
     <PackageId>Trexon.Web</PackageId>
     <Title>Trexon.Web</Title>
     <Authors>Trexoncorp</Authors>
@@ -20,6 +20,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -34,5 +35,6 @@
     <EmbeddedResource Include="Internal/WebSocketConsole.js" />
     <None Include="../README*.md" Pack="true" PackagePath="/" />
     <None Include="../LICENSE" Pack="true" PackagePath="/" />
+    <None Include="../CHANGELOG.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 </Project>

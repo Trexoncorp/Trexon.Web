@@ -11,6 +11,7 @@
 - `docs/` — русское руководство; `docs/en`, `docs/de` — самостоятельные краткие руководства.
 - `scripts/check-docs.py` — проверка ссылок и компиляция завершённых C#-примеров.
 - `scripts/smoke-sample.py` — полный пример через реальный Kestrel на временном порту.
+- `scripts/smoke-package.py` — установка NuGet-пакета в чистый проект и HTTP-проверка.
 
 ## Команды
 
@@ -21,6 +22,7 @@ dotnet test --solution Trexon.Web.slnx --configuration Release --no-build --no-r
 python3 scripts/check-docs.py
 python3 scripts/smoke-sample.py
 dotnet pack Trexon.Web/Trexon.Web.csproj --configuration Release --no-build --output artifacts
+python3 scripts/smoke-package.py --source artifacts
 dotnet list Trexon.Web.slnx package --vulnerable --include-transitive
 ```
 
@@ -59,5 +61,6 @@ RunAsync и не выполняет команды публикации. Пов�
 ## CI и пакеты
 
 GitHub Actions строит solution с предупреждениями как ошибками, запускает обе версии
-тестов, проверяет документацию и полный пример, создаёт nupkg/snupkg. Публикация в NuGet
-и создание стабильного релиза автоматически не включены. [Подготовка пакета](PUBLISHING.md).
+тестов, проверяет документацию и полный пример, создаёт nupkg/snupkg и проверяет установку
+пакета в чистый проект. Тег запускает эти же проверки и GitHub Release; NuGet публикуется
+через Upload. [Порядок выпуска](PUBLISHING.md).

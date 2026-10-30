@@ -6,7 +6,7 @@ Attribute-first HTTP APIs for C# / .NET 8+. Explicit route classes, async startu
 automatic validation, Swagger UI at `/docs`, and optional service modules.
 Built on ASP.NET Core MVC and Kestrel. MIT license.
 
-**Status: `1.0.0-dev`, unreleased.** The API may change before the first stable release.
+**Version `1.0.0`.** [NuGet](https://www.nuget.org/packages/Trexon.Web/1.0.0) · [Release notes](CHANGELOG.md).
 No throughput advantage over Minimal APIs is claimed.
 
 ## A complete first API
@@ -116,11 +116,11 @@ through single-use connection tickets; cookie sessions are also supported. It is
 
 ## Reference from another project
 
-The package is not published yet. Use a project reference:
+Install the stable package:
 
 ```sh
 dotnet new web -n Hello
-dotnet add Hello/Hello.csproj reference /path/to/Trexon.Web/Trexon.Web/Trexon.Web.csproj
+dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.0
 ```
 
 Replace `Hello/Program.cs` with the first example. Run with

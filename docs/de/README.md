@@ -3,7 +3,7 @@
 [Startseite](../../README.de.md) · [English](../en/README.md) · [Русский](../README.md)
 
 Trexon.Web stellt explizite Routenklassen, Attribute und wiederverwendbare Module
-auf ASP.NET Core MVC/Kestrel bereit. Beschrieben wird `1.0.0-dev`, noch unveröffentlicht.
+auf ASP.NET Core MVC/Kestrel bereit. Beschrieben wird die stabile Version `1.0.0`.
 Ein Leistungsvorteil gegenüber Minimal APIs und Native-AOT-Unterstützung werden nicht behauptet.
 
 
@@ -32,8 +32,8 @@ den vorhandenen Trexon-NuGet-Paketen eingebunden.
 
 ## Eigenes erstes Programm
 
-Das Paket ist noch nicht veröffentlicht. Eine ASP.NET-Core-Web-App erstellen und eine
-ProjectReference auf Trexon.Web/Trexon.Web.csproj hinzufügen. Program.cs:
+Mit `dotnet new web -n Hello` eine ASP.NET-Core-Web-App erstellen, dann
+`dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.0` ausführen. Program.cs:
 
 <!-- verify: first-api -->
 ```csharp

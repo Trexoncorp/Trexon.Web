@@ -3,7 +3,7 @@
 [Home](../../README.md) · [Русское руководство](../README.md) · [Deutsch](../de/README.md)
 
 Trexon.Web provides explicit attribute routes and reusable service modules on top of
-ASP.NET Core MVC/Kestrel. This guide describes the unreleased `1.0.0-dev` API. It does
+ASP.NET Core MVC/Kestrel. This guide describes the stable `1.0.0` API. It does
 not claim higher throughput than Minimal APIs or Native AOT compatibility.
 
 
@@ -31,8 +31,8 @@ selects the listener. The sample consumes Trexon.Logging, Configuration, and Dat
 
 ## First independent application
 
-The package has not been published. Create an ASP.NET Core application and add a
-ProjectReference to `Trexon.Web/Trexon.Web.csproj`. Replace Program.cs:
+Create an ASP.NET Core application with `dotnet new web -n Hello`, then install
+`dotnet add Hello/Hello.csproj package Trexon.Web --version 1.0.0`. Replace Program.cs:
 
 <!-- verify: first-api -->
 ```csharp

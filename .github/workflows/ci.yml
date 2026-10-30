@@ -1,8 +1,10 @@
 name: CI
 on:
   push:
+    branches: ['**']
   pull_request:
   workflow_dispatch:
+  workflow_call:
 permissions:
   contents: read
 jobs:
@@ -28,6 +30,7 @@ jobs:
       - run: python scripts/check-docs.py
       - run: python scripts/smoke-sample.py
       - run: dotnet pack Trexon.Web/Trexon.Web.csproj --configuration Release --no-build --output artifacts
+      - run: python scripts/smoke-package.py --source artifacts
       - uses: actions/upload-artifact@v4
         with:
           name: packages-${{ matrix.os }}
