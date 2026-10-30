@@ -181,7 +181,9 @@ Modules initialize sequentially before the listener starts. Duplicate module typ
 Register parameterless modules with AddModule<T>() or configured instances with AddModule(instance).
 
 Other modules: UseCors(explicitOrigin), UseRateLimit(permits, window), UseOutputCache(),
-UseHealthChecks(path), and UseRequestLogging(). Rate limits are per user ID or remote IP,
+and UseHealthChecks(path). Every completed request is logged through `Trexon.Logging.Log.Info`
+by default, using the application’s `Log.Configure` settings. `UseRequestLogging(sink)`
+replaces that default with a custom sink. Rate limits are per user ID or remote IP,
 fixed-window, in-process, with no queue. OutputCache uses standard public-response policies;
 authenticated responses are not cached by default. Add standard IHealthCheck registrations
 for dependencies. Logging excludes body/query/credentials and can forward to a custom

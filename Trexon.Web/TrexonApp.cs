@@ -32,7 +32,7 @@ public sealed class TrexonApp
     internal string? DocsLoginPath;
     internal Trexon.Web.Sockets.WebSocketModule? Sockets;
     internal string ApiKeyHeader = "X-API-Key";
-    internal Func<Trexon.Web.Modules.RequestLog, CancellationToken, ValueTask>? RequestLogWriter;
+    internal Func<Trexon.Web.Modules.RequestLog, CancellationToken, ValueTask> RequestLogWriter = Trexon.Web.Modules.RequestLoggingModule.WriteDefault;
     internal ILogger? RequestLogger;
 
     private TrexonApp(WebApplicationBuilder builder, Action<ApiOptions>? configure)
@@ -177,16 +177,13 @@ public sealed class TrexonApp
                 try { await next(context); }
                 finally
                 {
-                    if (RequestLogWriter != null)
+                    try
                     {
-                        try
-                        {
-                            await RequestLogWriter(new(context.Request.Method, context.Request.Path, context.Response.StatusCode,
+                        await RequestLogWriter(new(context.Request.Method, context.Request.Path, context.Response.StatusCode,
                             System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds, context.TraceIdentifier), context.RequestAborted);
-                        }
-                        catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested) { }
-                        catch (Exception error) { RequestLogger.LogError(error, "Request log sink failed"); }
                     }
+                    catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested) { }
+                    catch (Exception error) { RequestLogger.LogError(error, "Request log sink failed"); }
                 }
             });
             app.Use(async (context, next) =>

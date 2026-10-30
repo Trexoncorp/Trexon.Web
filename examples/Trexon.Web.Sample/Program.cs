@@ -25,8 +25,10 @@ using Trexon.Web.Users;
 var settings = Settings.Load<SampleSettings>();
 // Каталог содержит независимые SQLite-базы: accounts.db и tasks.db.
 Directory.CreateDirectory(settings.DataDirectory);
-// HTTP-события выводим через Trexon.Logging; using освобождает логгер при остановке.
-using var logger = Logger.Create(config => config.WriteTo.Console());
+// Каждый HTTP-запрос автоматически записывается через Trexon.Logging.Log.Info.
+// Здесь один раз настраиваем общий Log: эти настройки действуют и для HTTP-событий.
+// Без Configure Log уже пишет в консоль; можно добавить файл или собственный приёмник.
+Log.Configure(config => config.WriteTo.Console());
 
 // Для быстрого старта ключ можно не задавать: он будет случайным на один запуск.
 // Чтобы выданные JWT оставались действительны после перезапуска, задайте TREXON_JWT_KEY.
@@ -65,9 +67,6 @@ app.UseJwt(new JwtSettings("trexon-sample", "trexon-sample", signingKey))
     .UseOutputCache()
     // /health включает проверки, зарегистрированные модулями, в том числе SQLite задач.
     .UseHealthChecks()
-    // Логируем метод, путь, статус, время и идентификатор запроса без тела и секретов.
-    .UseRequestLogging(request => logger.Info("HTTP {Method} {Path} -> {StatusCode} in {ElapsedMs}ms [{TraceId}]",
-        request.Method, request.Path, request.StatusCode, request.ElapsedMilliseconds, request.TraceId))
     // Наш модуль сам регистрирует хранилище, сервис, валидатор и CRUD-маршруты задач.
     .AddModule<TaskModule>()
     // Классы маршрутов и сокетов подключаем явно: их не нужно искать по всей сборке.
@@ -96,8 +95,8 @@ await using var web = await app.BuildAsync();
 // Отдельный явный шаг до приёма запросов: при заданном пароле создаём/проверяем admin.
 // Эти действия завершаются последовательно; фоновые задания не запускаются.
 await AdminSeed.InitializeAsync(web.Services);
-logger.Info("Docs: {DocsUrl}", settings.Url.TrimEnd('/') + "/docs");
-if (string.IsNullOrWhiteSpace(settings.JwtKey)) logger.Warning("JWT key is ephemeral; set TREXON_JWT_KEY to preserve access-token validity across restarts.");
+Log.Info("Docs: {DocsUrl}", settings.Url.TrimEnd('/') + "/docs");
+if (string.IsNullOrWhiteSpace(settings.JwtKey)) Log.Warning("JWT key is ephemeral; set TREXON_JWT_KEY to preserve access-token validity across restarts.");
 // Запускаем веб-сервер и ждём остановки (например, Ctrl+C). Обработчики используют async I/O;
 // сам ASP.NET Core при этом может обслуживать несколько подключений одновременно.
 // Для явного HTTP-порта доступно также: await web.RunAsync(5080).

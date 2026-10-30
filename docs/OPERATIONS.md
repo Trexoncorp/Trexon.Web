@@ -56,7 +56,8 @@ Rate limit и output cache в текущих модулях локальны п�
 
 ## Наблюдаемость и завершение
 
-Request logging не записывает body/query/credentials. Обычные server exceptions
+Request logging включено по умолчанию через `Trexon.Logging.Log.Info`, использует общую
+настройку `Log.Configure` и не записывает body/query/headers. Обычные server exceptions
 попадают в ILogger, поэтому полезно подключить настроенный logging provider. Health
 checks показывают только статусы проверок, без connection strings и stack traces.
 Защиту доступа к инфраструктурным endpoints задавайте на уровне приложения/сети.

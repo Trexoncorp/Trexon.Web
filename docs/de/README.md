@@ -162,8 +162,9 @@ InitializeAsync führt erwartete Startup-I/O vor dem Listener aus. Die ersten be
 Schritte sind synchrone Konfiguration ohne I/O. Initialisierung erfolgt nacheinander.
 Doppelte Modultypen werden abgewiesen. AddModule<T>() oder AddModule(instance) verbindet sie.
 
-UseCors(origin), UseRateLimit(100), UseOutputCache(), UseHealthChecks() und
-UseRequestLogging() sind fertige Module. Der Limiter verwendet Benutzer-ID oder Remote-IP,
+UseCors(origin), UseRateLimit(100), UseOutputCache() und UseHealthChecks() sind fertige Module.
+Jeder abgeschlossene Request wird standardmäßig über `Trexon.Logging.Log.Info` mit der
+Konfiguration aus `Log.Configure` protokolliert. `UseRequestLogging(sink)` ersetzt den Standard-Sink. Der Limiter verwendet Benutzer-ID oder Remote-IP,
 Fixed Window und keine Warteschlange. Cache und Limits gelten pro Prozess. OutputCache
 speichert standardmäßig keine authentifizierten Antworten. Health Checks zeigen keine
 internen Exception-Texte. Request-Logs enthalten keine Bodies, Queries oder Credentials;

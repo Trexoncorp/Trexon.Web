@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Logging;
+using Trexon.Logging;
 
 namespace Trexon.Web.Modules;
 
@@ -96,11 +96,11 @@ public sealed class HealthChecksModule(string path = "/health") : ITrexonModule
 /// <summary>A completed HTTP request. Bodies, query strings, cookies, and credentials are excluded.</summary>
 public sealed record RequestLog(string Method, string Path, int StatusCode, double ElapsedMilliseconds, string TraceId);
 
-/// <summary>Logs requests with ILogger or a supplied sink, including rejected and failed requests.</summary>
+/// <summary>Customizes the default Log.Info request logging, including rejected and failed requests.</summary>
 public sealed class RequestLoggingModule : ITrexonModule
 {
     private readonly Func<RequestLog, CancellationToken, ValueTask>? _write;
-    /// <summary>Uses ILogger by default, or adapts an existing synchronous logger.</summary>
+    /// <summary>Uses Trexon.Logging.Log.Info by default, or replaces it with a synchronous sink.</summary>
     public RequestLoggingModule(Action<RequestLog>? write = null)
     {
         if (write != null) _write = (entry, _) => { write(entry); return ValueTask.CompletedTask; };
@@ -108,12 +108,14 @@ public sealed class RequestLoggingModule : ITrexonModule
     /// <summary>Uses an asynchronous sink, awaited before the request pipeline completes.</summary>
     public RequestLoggingModule(Func<RequestLog, CancellationToken, ValueTask> write) => _write = write;
     /// <inheritdoc />
-    public void Configure(TrexonApp app) => app.RequestLogWriter = _write ?? ((entry, _) =>
+    public void Configure(TrexonApp app) => app.RequestLogWriter = _write ?? WriteDefault;
+
+    internal static ValueTask WriteDefault(RequestLog entry, CancellationToken cancellationToken)
     {
-        app.RequestLogger?.LogInformation("HTTP {Method} {Path} -> {StatusCode} in {ElapsedMs:F2}ms [{TraceId}]",
+        Log.Info("HTTP {Method} {Path} -> {StatusCode} in {ElapsedMs:F2}ms [{TraceId}]",
             entry.Method, entry.Path, entry.StatusCode, entry.ElapsedMilliseconds, entry.TraceId);
         return ValueTask.CompletedTask;
-    });
+    }
 }
 
 /// <summary>Convenience methods for standard service modules.</summary>
@@ -127,7 +129,7 @@ public static class ServiceModuleExtensions
     public static TrexonApp UseRateLimit(this TrexonApp app, int permits = 100, TimeSpan? window = null) => app.AddModule(new RateLimitModule(permits, window));
     /// <summary>Enables the health endpoint.</summary>
     public static TrexonApp UseHealthChecks(this TrexonApp app, string path = "/health") => app.AddModule(new HealthChecksModule(path));
-    /// <summary>Logs completed requests; a callback can forward events to Trexon.Logging.</summary>
+    /// <summary>Replaces automatic Log.Info request logging with a callback, or restores the default sink.</summary>
     public static TrexonApp UseRequestLogging(this TrexonApp app, Action<RequestLog>? write = null) => app.AddModule(new RequestLoggingModule(write));
     /// <summary>Awaits an asynchronous request-log sink without creating background jobs.</summary>
     public static TrexonApp UseRequestLogging(this TrexonApp app, Func<RequestLog, CancellationToken, ValueTask> write) => app.AddModule(new RequestLoggingModule(write));

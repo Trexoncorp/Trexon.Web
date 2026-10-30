@@ -74,8 +74,12 @@ public sealed class CatalogRoutes(Catalog catalog)
 | Output cache | `UseOutputCache()` | Включает стандартный `[OutputCache(Duration = 30)]` |
 | Health | `UseHealthChecks("/health")` | JSON-статусы зарегистрированных проверок |
 | WebSocket | `AddSocket<ChatSocket>()` | Транспорт автоматически, типизированные сообщения, группы, auth |
-| Request logs | `UseRequestLogging()` | ILogger: метод, путь, статус, время, request ID |
-| Custom log sink | `UseRequestLogging(entry => ...)` | Адаптация к Trexon.Logging или иному приёмнику |
+| Request logs | По умолчанию | `Trexon.Logging.Log.Info`: метод, путь, статус, время, request ID |
+| Custom log sink | `UseRequestLogging(entry => ...)` | Заменяет стандартный приёмник; есть awaited async overload |
+
+Логирование всех завершённых запросов уже включено; `UseRequestLogging()` без аргументов
+не требуется. Общие настройки задаются через `Log.Configure` один раз в приложении.
+Формат событий, исключённые данные и пример: [Request ID и логи](ERRORS.md#request-id-и-логи).
 
 Rate limiter делит запросы по subject/id аутентифицированного пользователя, иначе по
 RemoteIpAddress. Состояние хранится в одном процессе; это не общий лимит кластера.

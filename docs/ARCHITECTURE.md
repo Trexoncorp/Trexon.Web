@@ -39,7 +39,7 @@ Builder выполняет только регистрацию. `BuildAsync` с�
 
 ## Порядок обработки запроса
 
-1. Обёртка request logging, если включён модуль.
+1. Обёртка request logging через `Trexon.Logging.Log.Info`, включённая по умолчанию.
 2. Обработчик исключений.
 3. Request ID и обработка пустых error responses.
 4. Routing и WebSocket transport, если есть socket handlers.
@@ -71,8 +71,8 @@ Microsoft.Data.Sqlite не умеет настоящее async I/O; async-кон
 
 MVC использует reflection. Native AOT и aggressive trimming не поддерживаются.
 Генератор кода, hot reload модулей, DI-контейнер и discovery по всем сборкам отсутствуют.
-Swagger и SQLite являются зависимостями NuGet-пакета, даже если соответствующий модуль
-не включён; runtime-поведение модулей opt-in, но поставка пока одним пакетом.
+Swagger, SQLite и Trexon.Logging являются зависимостями NuGet-пакета. HTTP-логи включены
+по умолчанию, дополнительные модули подключаются явно; поставка пока одним пакетом.
 Отдельные extension-пакеты можно выделить позднее без усложнения первого приложения.
 
 ## WebSocket

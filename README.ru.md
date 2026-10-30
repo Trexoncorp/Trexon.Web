@@ -79,7 +79,7 @@ dotnet run --project examples/Trexon.Web.Sample
 | Ограничение запросов | `UseRateLimit(100)` |
 | Кеш публичных ответов | `UseOutputCache()` и `[OutputCache]` |
 | Проверка зависимостей | `UseHealthChecks()` |
-| Логи HTTP-запросов | `UseRequestLogging()` |
+| Логи HTTP-запросов через `Trexon.Logging.Log.Info` | По умолчанию; свой приёмник — `UseRequestLogging(sink)` |
 | Типизированные WebSocket, комнаты, lifecycle и консоль `/docs/ws` | `AddSocket<THandler>()` |
 | Свои модули | `AddModule<T>()` |
 

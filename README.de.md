@@ -65,7 +65,7 @@ JWT-Schlüssel nur für den aktuellen Prozess.
 | Ratenbegrenzung | `UseRateLimit(100)` |
 | Öffentlicher Antwort-Cache | `UseOutputCache()` |
 | Health Checks | `UseHealthChecks()` |
-| Request-Logging | `UseRequestLogging()` |
+| Request-Logging über `Trexon.Logging.Log.Info` | Standard; eigener Sink: `UseRequestLogging(sink)` |
 | Typisierte WebSockets und Räume | `AddSocket<THandler>()` |
 | Eigene Module | `AddModule<T>()` |
 

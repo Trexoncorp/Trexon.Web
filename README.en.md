@@ -75,7 +75,7 @@ its automatically generated JWT key lasts only for the current process.
 | Per-client request limits | `UseRateLimit(100)` |
 | Public response caching using `[OutputCache]` | `UseOutputCache()` |
 | JSON dependency health reports | `UseHealthChecks()` |
-| Request logs through ILogger or a custom sink | `UseRequestLogging()` |
+| Request logs through `Trexon.Logging.Log.Info` | Default; customize with `UseRequestLogging(sink)` |
 | Typed WebSocket handlers, validation, rooms and async lifecycle | `AddSocket<THandler>()` |
 | Application modules | `AddModule<T>()` |
 

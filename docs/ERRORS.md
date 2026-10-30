@@ -61,7 +61,33 @@ public sealed class OrderRoutes
 активную Activity, когда она есть, либо request ID. Поэтому `traceId` может отличаться
 от `X-Request-ID`, если включена распределённая трассировка.
 
-`UseRequestLogging()` пишет метод, путь без query string, статус, длительность и request ID.
-Тела, cookies и заголовки аутентификации автоматически не логируются. Сбой пользовательского
-логирующего callback не прерывает HTTP-запрос. Для экспорта в Trexon.Logging передайте callback,
-как в [Program.cs примера](../examples/Trexon.Web.Sample/Program.cs).
+Каждый завершённый HTTP-запрос автоматически записывается через `Trexon.Logging.Log.Info`:
+метод, путь без query string, итоговый статус, длительность в миллисекундах и request ID.
+Это включает ошибки, отклонённые запросы, попадания в кеш и страницы документации.
+Для WebSocket запись появляется после завершения соединения и содержит его полную длительность.
+Тела, query string, cookies и заголовки не записываются.
+
+```text
+HTTP GET /calculator/add -> 200 in 1.25ms [request-id]
+```
+
+Без настройки `Log` пишет в консоль. Настройте его один раз в приложении через `Log.Configure`:
+эти же приёмники, фильтры и свойства будут применяться к HTTP-событиям. Trexon.Web не меняет
+и не закрывает общий логгер; уровень записи всегда Information и учитывает фильтры `Log`.
+
+<!-- verify: request-logging -->
+```csharp
+using Trexon.Logging;
+using Trexon.Web;
+
+Log.Configure(config => config.WriteTo.Console().WriteTo.File("logs/http.log"));
+var web = TrexonApp.Create(args);
+await web.RunAsync(5080); // Все запросы уже проходят через Log.Info.
+```
+
+Для собственного приёмника есть `UseRequestLogging(entry => ...)` и асинхронный вариант
+`UseRequestLogging(async (entry, token) => ...)`. Callback заменяет стандартный вызов `Log.Info`,
+поэтому запись не дублируется. Асинхронный приёмник ожидается в конвейере, без фоновых заданий;
+сам `Log.Info` использует синхронный API Trexon.Logging. `UseRequestLogging()` без аргументов
+оставляет стандартный приёмник. Сбой callback не прерывает HTTP-запрос и передаётся в `ILogger`.
+Пример настройки общего `Log` есть в [Program.cs](../examples/Trexon.Web.Sample/Program.cs).
