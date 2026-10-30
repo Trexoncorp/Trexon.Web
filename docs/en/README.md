@@ -237,3 +237,8 @@ Swagger's WebSockets section lists contracts; x-trexon-websockets in OpenAPI con
 formats, auth metadata and input/output schema references. HTTP Try it out does not exchange
 socket messages. `/chat` in the complete sample demonstrates public/private rooms and a
 browser cookie login. [Detailed contract and complete examples](../WEBSOCKETS.md).
+
+The built-in **WebSocket console** at `/docs/ws` provides endpoint selection, route
+parameters, schema-based JSON examples, send/receive logs and validation errors.
+Cookie sign-in is available with `UseUsers()` + `UseCookies()` over HTTPS. The page follows
+`DocsPath` and reverse-proxy PathBase, and is disabled with `EnableDocs = false`.

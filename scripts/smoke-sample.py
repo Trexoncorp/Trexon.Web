@@ -10,6 +10,7 @@ import tempfile
 import time
 import urllib.error
 import urllib.request
+import urllib.parse
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -61,6 +62,15 @@ def main():
                 assert {'Bearer', 'ApiKey', 'Cookies'} <= document['components']['securitySchemes'].keys()
                 ui, _ = call('GET', '/docs/index.html')
                 assert 'swagger-ui' in ui
+                console, _ = call('GET', '/docs/ws')
+                assert '<html lang="en">' in console
+                console_config, _ = call('GET', '/docs/ws/config.json')
+                console_root = base + '/docs/ws/'
+                assert urllib.parse.urljoin(console_root, console_config['schemaUrl']) == base + '/openapi.json'
+                assert urllib.parse.urljoin(console_root, console_config['auth']['loginUrl']) == base + '/auth/cookie/login'
+                _, assets = call('GET', '/docs/ws/console.js')
+                assert 'javascript' in assets['Content-Type']
+                assert '[Open WebSocket console](./ws)' in document['info']['description']
                 assert any(item['path'] == '/ws/chat/{room}' for item in document['x-trexon-websockets'])
                 assert any(item['path'] == '/ws/private/{room}' for item in document['x-trexon-websockets'])
                 chat, _ = call('GET', '/chat')

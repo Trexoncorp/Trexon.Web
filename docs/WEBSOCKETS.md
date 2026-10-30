@@ -207,14 +207,47 @@ KeepAliveInterval — transport keep-alive, а не обещание обнар�
 Compression, binary streaming, durable delivery, automatic reconnect, acknowledgements,
 SignalR negotiation и распределённые комнаты в этот простой API не включены.
 
+## Встроенная консоль /docs/ws
+
+Вместе с документацией автоматически доступна **WebSocket console** по `/docs/ws`.
+Интерфейс на английском, без внешних JS-зависимостей и дополнительных модулей.
+
+1. Выберите **WebSocket endpoint**: список берётся из зарегистрированных `AddSocket<THandler>()`.
+2. Заполните параметры пути (например, `room`). Ограничения, optional/default и catch-all
+   разбираются серверным парсером маршрутов ASP.NET Core.
+3. Нажмите **Connect**. Состояние и события подключения появятся в **Message log**.
+4. **Generate example** создаёт JSON из входной схемы. Измените его и нажмите **Send**.
+5. Просматривайте отправленные и полученные сообщения, ошибки валидации и код закрытия.
+   Для проверки некорректного JSON отключите **Validate JSON**. Text-handler получает обычный текст.
+
+**Message schemas** показывает входную и выходную схемы. Журнал ограничен 200 событиями,
+хранится в памяти вкладки; **Clear** очищает его. **Disconnect** штатно закрывает соединение,
+повторное подключение выполняется вручную.
+
+Для закрытых маршрутов при `UseUsers()` + `UseCookies()` и HTTPS появляется **Sign in**.
+Вход использует готовые cookie-endpoints с CSRF, пароль очищается после запроса. После
+смены аккаунта текущее соединение закрывается: откройте его заново с новой identity.
+Установленная same-origin cookie отправляется браузером автоматически.
+
+Bearer из Swagger не переносится в браузерный WebSocket: его API не позволяет задать
+Authorization/X-API-Key. Для этих схем используйте native-клиент с нужными заголовками;
+консоль не помещает токены в URL и не проксирует подключения через сервер.
+
+Путь консоли следует за `ApiOptions.DocsPath`: для `/reference` это `/reference/ws`.
+Относительные адреса сохраняют PathBase при размещении за reverse proxy. Ссылка на
+консоль есть в разделе WebSockets Swagger. `EnableDocs = false` отключает страницу,
+конфигурацию и JavaScript вместе с остальной документацией. Без socket-handlers страница
+показывает, как их подключить; дополнительной регистрации консоли не требуется.
+
 ## Документация контракта
 
 Swagger показывает раздел WebSockets с адресами и input/output. `[Summary]` и `[Tag]`
 описывают классы. В `/openapi.json` расширение `x-trexon-websockets` содержит пути,
-описания, форматы text/json, авторизационные metadata и ссылки на схемы в components.schemas.
+описания, структурированные сегменты маршрутов, форматы text/json, авторизационные metadata
+и ссылки на схемы в components.schemas.
 Там же присутствует SocketErrorMessage. Это расширение OpenAPI, не стандарт AsyncAPI.
-HTTP Try it out не изображает WebSocket-клиент; используйте `/chat`, браузерный WebSocket
-или ClientWebSocket. [Пример](../examples/Trexon.Web.Sample/Program.cs) демонстрирует
+Для тестирования в браузере используйте `/docs/ws`. Демонстрационный `/chat` показывает
+собственный клиент приложения. [Пример](../examples/Trexon.Web.Sample/Program.cs) демонстрирует
 public/private комнаты на том же контракте.
 
 Первичный источник транспортных ограничений: [ASP.NET Core WebSockets](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/websockets?view=aspnetcore-8.0).

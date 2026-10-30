@@ -98,7 +98,9 @@ No transport setup, framing, receive loop or JSON plumbing is required. Other pa
 use JSON automatically; `SocketHandler<TIn,TOut>` supports distinct contracts. Existing
 `[Authorize]` and validators work on sockets. The [WebSocket guide](docs/WEBSOCKETS.md)
 describes groups, limits and lifecycle. Open `/chat` in the full sample to try public or
-cookie-authenticated private rooms. Swagger lists contracts in its WebSockets section.
+cookie-authenticated private rooms. The built-in **WebSocket console** at `/docs/ws` lets
+you choose endpoints, fill route parameters, generate JSON examples and inspect messages
+and errors. It is linked from Swagger and disabled with `EnableDocs = false`.
 
 ## Reference from another project
 

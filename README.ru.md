@@ -69,7 +69,7 @@ dotnet run --project examples/Trexon.Web.Sample
 | Кеш публичных ответов | `UseOutputCache()` и `[OutputCache]` |
 | Проверка зависимостей | `UseHealthChecks()` |
 | Логи HTTP-запросов | `UseRequestLogging()` |
-| Типизированные WebSocket, комнаты и lifecycle | `AddSocket<THandler>()` |
+| Типизированные WebSocket, комнаты, lifecycle и консоль `/docs/ws` | `AddSocket<THandler>()` |
 | Свои модули | `AddModule<T>()` |
 
 JWT на сервере и Swagger настраиваются одним вызовом. Сам ключ, issuer и audience

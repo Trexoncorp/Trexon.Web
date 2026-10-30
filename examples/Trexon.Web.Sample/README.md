@@ -18,7 +18,8 @@
 dotnet run --project examples/Trexon.Web.Sample
 ```
 
-Документация: `http://localhost:5080/docs`, схема: `/openapi.json`, здоровье: `/health`.
+Документация: `http://localhost:5080/docs`, WebSocket-консоль: `/docs/ws`,
+схема: `/openapi.json`, здоровье: `/health`.
 Остановка — Ctrl+C. До открытия listener модуль пользователей создаёт schema accounts,
 TaskModule обновляет schema tasks через Trexon.Data, затем при необходимости создаётся admin.
 Фоновых jobs нет; HTTP-запросы обрабатываются параллельно стандартным ASP.NET Core.
@@ -219,6 +220,13 @@ python3 scripts/smoke-sample.py
 кеш, ошибки, refresh/reuse/logout. Сервер и данные удаляются после проверки.
 
 ## 11. WebSocket-чат: браузер и native-клиент
+
+Откройте `/docs/ws` — готовая WebSocket-консоль встроена в библиотеку. Выберите
+`/ws/chat/{room}`, задайте `room`, нажмите **Connect**, затем **Generate example** и **Send**.
+В **Message log** видны отправка, рассылка, ошибки и закрытие. Во второй вкладке с той же
+комнатой придёт то же сообщение. Для `/ws/private/{room}` используйте **Sign in** по HTTPS.
+Интерфейс консоли на английском; схемы и описания берутся из атрибутов обработчиков.
+
 
 После обычного запуска откройте `http://localhost:5080/chat` в двух вкладках. Выберите
 одну комнату и разные отображаемые имена, подключитесь и отправьте сообщение. Обе вкладки

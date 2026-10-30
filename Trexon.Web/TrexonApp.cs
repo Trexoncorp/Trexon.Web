@@ -218,6 +218,7 @@ public sealed class TrexonApp
             foreach (var configure in _middleware) configure(app);
             if (Options.EnableDocs)
             {
+                WebSocketConsole.Map(app, Options, DocsLoginPath, SecuritySchemes.Any(s => s.Id == "Cookies"));
                 app.MapGet(Options.OpenApiPath, (Swashbuckle.AspNetCore.Swagger.ISwaggerProvider provider) =>
                 {
                     var document = provider.GetSwagger("v1");

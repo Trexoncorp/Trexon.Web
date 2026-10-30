@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Trexon.Web · WebSocket console</title>
+    <style>
+        :root { color-scheme: light dark; font: 15px/1.55 system-ui, sans-serif; --bg: #f4f7fb; --panel: #fff; --text: #16283c; --muted: #597086; --line: #d5dfe9; --accent: #126b5b; --soft: #e8f5f0; --error: #ae2435; }
+        @media (prefers-color-scheme: dark) {
+            :root { --bg: #101923; --panel: #172330; --text: #e6edf5; --muted: #a1b3c6; --line: #344759; --accent: #71dac1; --soft: #203c3a; --error: #ffb0b9; }
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--bg); color: var(--text); }
+        main { max-width: 1360px; margin: 0 auto; padding: 32px; }
+        header { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 28px; }
+        .eyebrow { color: var(--accent); font-size: 12px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+        h1 { font-size: clamp(26px, 4vw, 38px); letter-spacing: -.04em; margin: 4px 0; }
+        h2 { font-size: 18px; margin: 0 0 16px; }
+        p { margin: 8px 0; }
+        a { color: var(--accent); text-underline-offset: 4px; }
+        nav { display: flex; gap: 18px; white-space: nowrap; }
+        .muted, small { color: var(--muted); }
+        .layout { display: grid; grid-template-columns: minmax(300px, 380px) minmax(0, 1fr); gap: 20px; align-items: start; }
+        .stack { display: grid; gap: 20px; }
+        .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 24px; }
+        label { display: block; font-size: 13px; font-weight: 650; margin: 16px 0 6px; }
+        input, select, textarea, button { font: inherit; color: inherit; }
+        input:not([type=checkbox]), select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 7px; padding: 10px 12px; }
+        textarea, pre, #path { font: 13px/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; }
+        textarea { resize: vertical; min-height: 180px; }
+        input:focus, select:focus, textarea:focus, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        button { border: 1px solid var(--line); border-radius: 7px; padding: 9px 14px; background: var(--panel); cursor: pointer; font-weight: 650; }
+        button.primary { background: var(--accent); color: var(--panel); border-color: var(--accent); }
+        button:disabled { opacity: .45; cursor: default; }
+        .row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .between { justify-content: space-between; }
+        .actions { margin-top: 18px; }
+        .badge { display: inline-flex; align-items: center; gap: 7px; border-radius: 99px; background: var(--soft); color: var(--accent); padding: 4px 10px; font-size: 12px; font-weight: 650; }
+        .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        #state[data-state=error], .error { color: var(--error); }
+        .check { display: inline-flex; align-items: center; gap: 7px; margin: 0; font-weight: 450; }
+        #description, #access { font-size: 13px; overflow-wrap: anywhere; }
+        #summary { margin-top: 16px; font-weight: 650; }
+        #url { display: block; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; margin-top: 12px; }
+        #journal { min-height: 220px; max-height: 500px; overflow: auto; margin: 18px 0 0; padding: 0; list-style: none; }
+        #journal li { border-top: 1px solid var(--line); padding: 14px 0; }
+        .entry-head { display: flex; gap: 10px; font-size: 12px; color: var(--muted); }
+        .direction { font-weight: 750; color: var(--accent); }
+        pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: 8px 0 0; }
+        details summary { cursor: pointer; font-weight: 650; }
+        .schemas { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 16px; }
+        .schemas pre { max-height: 280px; overflow: auto; font-size: 12px; }
+        #empty { padding: 36px 0; text-align: center; color: var(--muted); }
+        #notice { padding: 0 0 16px; }
+        [hidden] { display: none !important; }
+        footer { margin-top: 24px; font-size: 12px; color: var(--muted); }
+        @media (max-width: 850px) { main { padding: 20px; } header { align-items: start; flex-direction: column; } .layout, .schemas { grid-template-columns: 1fr; } .card { padding: 20px; } }
+    </style>
+    <script src="console.js" defer></script>
+</head>
+<body>
+<main>
+    <header>
+        <div>
+            <div class="eyebrow">Trexon.Web / Realtime</div>
+            <h1>WebSocket console</h1>
+            <p id="title" class="muted">Connect, exchange messages and explore your API schemas.</p>
+        </div>
+        <nav aria-label="Documentation"><a id="http-docs" href="../">HTTP / Swagger</a><a id="schema-link" href="../../openapi.json">OpenAPI JSON</a></nav>
+    </header>
+    <p id="notice" role="alert" class="error"></p>
+    <div class="layout">
+        <aside class="stack">
+            <section class="card">
+                <div class="row between"><h2>Connection</h2><span id="state" class="badge" role="status">Disconnected</span></div>
+                <form id="connect-form">
+                    <label for="endpoint">WebSocket endpoint</label>
+                    <select id="endpoint" disabled><option>Loading endpoints…</option></select>
+                    <p id="summary"></p><p id="description" class="muted"></p><p id="access" class="muted"></p>
+                    <div id="parameters"></div>
+                    <label for="path">Connection path</label><input id="path" placeholder="/ws/chat/general" required disabled>
+                    <small>Route parameters are filled in automatically. You can also edit the path.</small>
+                    <code id="url"></code>
+                    <div class="row actions">
+                        <button id="connect" class="primary" disabled>Connect</button>
+                        <button id="disconnect" type="button" disabled>Disconnect</button>
+                    </div>
+                </form>
+            </section>
+            <section class="card">
+                <h2>Access</h2>
+                <p id="auth-status" role="status" class="muted">Public endpoints do not require sign-in.</p>
+                <form id="login-form" hidden>
+                    <label for="username">Username</label><input id="username" name="username" autocomplete="username" required maxlength="64">
+                    <label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="128">
+                    <div class="row actions"><button id="login" class="primary">Sign in</button><button id="logout" type="button">Sign out</button></div>
+                </form>
+                <p id="auth-error" role="alert" class="error"></p>
+                <details class="actions"><summary>Connecting to protected endpoints</summary>
+                    <p class="muted">The browser sends its session cookie automatically. Built-in cookie sign-in requires HTTPS, UseUsers() and UseCookies().</p>
+                    <p class="muted">Swagger JWT authorization does not carry over to WebSocket connections. Native clients can set Authorization and X-API-Key headers; browser WebSocket clients cannot. Tokens are never added to the URL.</p>
+                    <p class="muted">Connect again after signing in: access is checked when the connection opens.</p>
+                </details>
+            </section>
+        </aside>
+        <div class="stack">
+            <section class="card">
+                <div class="row between"><h2>Message</h2><button id="example" type="button" disabled>Generate example</button></div>
+                <form id="send-form">
+                    <label id="message-label" for="message">Message body · JSON</label>
+                    <textarea id="message" spellcheck="false" aria-describedby="send-hint" disabled></textarea>
+                    <div class="row between actions">
+                        <label class="check"><input id="validate-json" type="checkbox" checked>Validate JSON</label>
+                        <button id="send" class="primary" disabled>Send</button>
+                    </div>
+                    <p id="send-hint" class="muted"><small>Turn off validation to test how the server handles malformed JSON.</small></p>
+                    <p id="send-error" role="alert" class="error"></p>
+                </form>
+            </section>
+            <section class="card">
+                <div class="row between"><h2>Message log</h2><button id="clear" type="button">Clear</button></div>
+                <div class="row between"><small id="counts">Sent: 0 · Received: 0</small><label class="check"><input id="follow" type="checkbox" checked>Auto-scroll</label></div>
+                <p id="empty">Messages will appear after you connect.</p>
+                <ol id="journal" aria-label="Message log" aria-live="polite"></ol>
+            </section>
+            <details class="card"><summary>Message schemas</summary>
+                <div class="schemas"><div><h2>Input</h2><pre id="input-schema">—</pre></div><div><h2>Output</h2><pre id="output-schema">—</pre></div></div>
+            </details>
+        </div>
+    </div>
+    <footer>Included with Trexon.Web documentation. The log stays in this tab and keeps up to 200 events. Reconnect manually when needed.</footer>
+</main>
+</body>
+</html>
