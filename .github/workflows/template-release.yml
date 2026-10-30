@@ -60,8 +60,8 @@ jobs:
         run: |
           cd artifacts/templates
           sha256sum ./*.nupkg > SHA256SUMS
-          gh release create "$RELEASE_TAG" --verify-tag --title "Trexon.Templates ${RELEASE_TAG#templates-v}" \
-            --notes 'Starter notes API with Swagger, SQLite, validated CRUD, typed settings and structured logs. Install: dotnet new install Trexon.Templates. Create: dotnet new trexon-api -n MyApi.' \
+          gh release create "$RELEASE_TAG" --verify-tag --title "Trexon.Templates ${RELEASE_TAG#templates-v}" --latest=false \
+            --notes 'Starter notes API with optional Docker/Compose and integration tests, shared NotesModule, scoped async startup, Swagger and persistent SQLite. Install: dotnet new install Trexon.Templates. Create: dotnet new trexon-api -n MyApi --docker --tests.' \
             ./*.nupkg ./SHA256SUMS
 
   publish-nuget:

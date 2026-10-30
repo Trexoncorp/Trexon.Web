@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.Data.Sqlite;
 using Trexon.Web.Testing;
 using TrexonApi;
 using Xunit;
@@ -23,6 +24,16 @@ public sealed class NotesTests
             var invalid = await api.Client.PostAsJsonAsync("/notes", new { title = "", text = "" });
             Assert.Equal(HttpStatusCode.BadRequest, invalid.StatusCode);
         }
-        finally { if (Directory.Exists(directory)) Directory.Delete(directory, true); }
+        finally
+        {
+            // SQLite pooling retains native file handles after closing DbContexts.
+            // Release only this database's pool before deleting its files on Windows.
+            using var connection = new SqliteConnection(new SqliteConnectionStringBuilder
+            {
+                DataSource = Path.GetFullPath(Path.Combine(directory, "notes.db"))
+            }.ConnectionString);
+            SqliteConnection.ClearPool(connection);
+            if (Directory.Exists(directory)) Directory.Delete(directory, true);
+        }
     }
 }
